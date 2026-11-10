@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maison Dolce — Pâtisserie</title>
+<meta name="description" content="Maison Dolce, pâtisserie : gâteaux, crêpes, gaufres, pancakes, milkshakes et mocktails.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Dancing+Script:wght@600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff7f9;--ink:#2a1020;--muted:#7a5a6b;--pink:#f7d6e2;--rose:#e8a3bf;--mag:#a8195f;--mag2:#7d0f46;--card:#fff;--line:#f0d3df}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;overflow-x:hidden}
+h1,h2,h3{font-family:'Playfair Display',serif;font-weight:500;line-height:1.1}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+nav{position:fixed;inset:0 0 auto 0;z-index:50;transition:.3s}
+nav.s{background:rgba(255,247,249,.92);backdrop-filter:blur(12px);box-shadow:0 1px 0 var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{font-family:'Dancing Script',cursive;font-size:30px;color:#fff;transition:.3s}
+nav.s .logo{color:var(--mag)}
+.links{display:flex;gap:28px;font-size:14px;color:#fff}
+nav.s .links{color:var(--ink)}
+.links a:hover{opacity:.7}
+.btn{display:inline-block;padding:14px 28px;border-radius:999px;background:var(--mag);color:#fff;font-weight:500;font-size:15px;transition:.25s;border:0;cursor:pointer}
+.btn:hover{background:var(--mag2);transform:translateY(-2px);box-shadow:0 10px 24px rgba(168,25,95,.3)}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.7)}
+.btn.ghost:hover{background:rgba(255,255,255,.15);box-shadow:none}
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;color:#fff;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:url(assets/storefront.png) center 62%/cover;transform:scale(1.08);animation:zoom 18s ease-out forwards}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(60,8,35,.55),rgba(125,15,70,.55) 60%,rgba(42,16,32,.85))}
+@keyframes zoom{to{transform:scale(1)}}
+.hero .wrap{position:relative;z-index:2;padding-top:90px}
+.tag{display:inline-block;font-size:12px;letter-spacing:.2em;text-transform:uppercase;padding:8px 16px;border:1px solid rgba(255,255,255,.5);border-radius:999px;margin-bottom:24px;backdrop-filter:blur(6px)}
+.hero h1{font-size:clamp(46px,8vw,108px);max-width:14ch}
+.hero h1 em{font-family:'Dancing Script',cursive;font-style:normal;color:var(--pink);font-weight:600}
+.hero p{max-width:480px;margin:24px 0 36px;font-size:18px;font-weight:300;opacity:.92}
+.cta{display:flex;gap:14px;flex-wrap:wrap}
+.stats{display:flex;gap:40px;margin-top:64px;flex-wrap:wrap}
+.stats b{display:block;font-family:'Playfair Display',serif;font-size:34px;font-weight:500}
+.stats span{font-size:13px;opacity:.8}
+section{padding:110px 0}
+.eyebrow{font-family:'Dancing Script',cursive;font-size:26px;color:var(--mag)}
+h2{font-size:clamp(34px,5vw,58px);margin:6px 0 18px}
+.lead{color:var(--muted);max-width:560px}
+.about{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
+.about .img{aspect-ratio:4/5;border-radius:240px 240px 24px 24px;background:url(assets/storefront.png) 30% 45%/cover;box-shadow:0 30px 60px rgba(168,25,95,.2)}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+.feat div{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px}
+.feat i{font-style:normal;font-size:26px}
+.feat h3{font-size:18px;margin:6px 0 2px}
+.feat p{font-size:13px;color:var(--muted)}
+.marquee{background:var(--mag);color:#fff;padding:18px 0;overflow:hidden;white-space:nowrap}
+.marquee div{display:inline-block;animation:m 28s linear infinite;font-family:'Playfair Display',serif;font-style:italic;font-size:24px}
+@keyframes m{to{transform:translateX(-50%)}}
+.menu{background:linear-gradient(180deg,var(--pink),var(--bg))}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:34px 0}
+.tabs button{padding:11px 22px;border-radius:999px;border:1px solid var(--rose);background:transparent;color:var(--mag2);font:500 14px Inter;cursor:pointer;transition:.2s}
+.tabs button.on,.tabs button:hover{background:var(--mag);color:#fff;border-color:var(--mag)}
+.panel{display:none;background:var(--card);border-radius:28px;padding:16px 36px;box-shadow:0 20px 50px rgba(168,25,95,.1);animation:f .4s}
+.panel.on{display:block}
+@keyframes f{from{opacity:0;transform:translateY(10px)}}
+.row{display:flex;align-items:baseline;gap:12px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.row:last-child{border:0}
+.row div{flex:0 1 auto}
+.row b{font-weight:500;font-size:17px}
+.row small{display:block;color:var(--muted);font-size:13px}
+.row hr{flex:1;border:0;border-bottom:1px dotted var(--rose);transform:translateY(-4px);min-width:20px}
+.row span{font-family:'Playfair Display',serif;color:var(--mag);font-size:19px;white-space:nowrap}
+.note{margin-top:18px;font-size:13px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:40px}
+.cards div{border-radius:24px;padding:28px 22px;color:#fff;min-height:220px;display:flex;flex-direction:column;justify-content:flex-end;transition:.3s}
+.cards div:hover{transform:translateY(-8px)}
+.cards h3{font-size:24px}.cards p{font-size:13px;opacity:.9}
+.c1{background:linear-gradient(160deg,#c2397b,#7d0f46)}.c2{background:linear-gradient(160deg,#e8a3bf,#b8457c)}.c3{background:linear-gradient(160deg,#8e2d62,#3d0b27)}.c4{background:linear-gradient(160deg,#f08fb2,#a8195f)}
+.rating{background:var(--mag2);color:#fff;text-align:center}
+.rating .big{font-family:'Playfair Display',serif;font-size:90px;line-height:1}
+.rating .st{color:#ffd36b;font-size:28px;letter-spacing:4px}
+.rating p{opacity:.85;margin-top:8px}
+.contact{display:grid;grid-template-columns:1fr 1fr;gap:50px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:32px}
+.box h3{font-size:22px;margin-bottom:14px}
+.box li{list-style:none;padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;font-size:15px}
+.box li:last-child{border:0}
+footer{background:var(--ink);color:#e9cfdb;padding:44px 0;text-align:center;font-size:14px}
+footer .logo{color:var(--rose);font-size:36px;display:block;margin-bottom:6px}
+.rv{opacity:0;transform:translateY(30px);transition:1s}
+.rv.in{opacity:1;transform:none}
+@media(max-width:860px){.links{display:none}.about,.contact{grid-template-columns:1fr}.about .img{max-width:380px}.cards{grid-template-columns:1fr 1fr}.feat{grid-template-columns:1fr}.panel{padding:8px 20px}section{padding:80px 0}}
+</style>
+</head>
+<body>
+<nav id="nav"><div class="wrap"><a href="#" class="logo">Maison Dolce</a>
+<div class="links"><a href="#about">À propos</a><a href="#menu">Menu</a><a href="#avis">Avis</a><a href="#contact">Contact</a></div>
+<a class="btn" href="#contact">Nous trouver</a></div></nav>
+
+<header class="hero"><div class="wrap">
+<span class="tag">Pâtisserie artisanale</span>
+<h1>Le goût <em>du bonheur</em></h1>
+<p>Gâteaux, crêpes, gaufres et douceurs préparés avec amour. Chaque bouchée, un petit moment de magie.</p>
+<div class="cta"><a class="btn" href="#menu">Découvrir le menu</a><a class="btn ghost" href="#contact">Commander un gâteau</a></div>
+<div class="stats"><div><b>4,6 ★</b><span>149 avis Google</span></div><div><b>9h</b><span>Ouverture quotidienne</span></div><div><b>100%</b><span>Fait maison</span></div></div>
+</div></header>
+
+<div class="marquee"><div>Pancakes ✦ Gaufres ✦ Crêpes ✦ Milkshakes ✦ Mocktails ✦ Mojitos ✦ Gâteaux sur commande ✦ Café ✦ Pancakes ✦ Gaufres ✦ Crêpes ✦ Milkshakes ✦ Mocktails ✦ Mojitos ✦ Gâteaux sur commande ✦ Café ✦</div></div>
+
+<section id="about"><div class="wrap about">
+<div class="img rv"></div>
+<div class="rv"><span class="eyebrow">Notre maison</span>
+<h2>Les délices de Dolce</h2>
+<p class="lead">Maison Dolce est une pâtisserie où le sucré rencontre l'élégance. Entremets glacés, gâteaux d'anniversaire personnalisés, desserts gourmands et boissons fraîches : tout est pensé pour faire plaisir aux yeux comme au palais.</p>
+<div class="feat"><div><i>🎂</i><h3>Sur commande</h3><p>Gâteaux personnalisés pour vos fêtes.</p></div><div><i>🍓</i><h3>Produits frais</h3><p>Fruits de saison et ingrédients choisis.</p></div><div><i>☕</i><h3>Salon cosy</h3><p>Café, desserts et boissons sur place.</p></div></div>
+</div></div></section>
+
+<section class="menu" id="menu"><div class="wrap">
+<span class="eyebrow">La carte</span><h2>Nos gourmandises</h2>
+<p class="lead">Prix en dinars algériens (DA).</p>
+<div class="tabs" id="tabs"></div>
+<div id="panels"></div>
+<p class="note">Fruits de saison selon disponibilité. Carte susceptible d'évoluer.</p>
+</div></section>
+
+<section><div class="wrap"><span class="eyebrow">Coups de cœur</span><h2>À ne pas manquer</h2>
+<div class="cards rv">
+<div class="c1"><h3>Dubaï</h3><p>Gaufre ou crêpe, pâte à tartiner pistache</p></div>
+<div class="c2"><h3>Pink Lady</h3><p>Ananas, cerise, fraise, grenadine</p></div>
+<div class="c3"><h3>Fontana</h3><p>Milkshake chocolat, Nutella, glaçons</p></div>
+<div class="c4"><h3>Maison Dolce</h3><p>Le mocktail signature, le choix du chef</p></div>
+</div></div></section>
+
+<section class="rating" id="avis"><div class="wrap rv">
+<div class="big">4,6</div><div class="st">★★★★★</div>
+<h2 style="margin-top:10px">Adorée par nos clients</h2>
+<p>Basé sur 149 avis Google</p></div></section>
+
+<section id="contact"><div class="wrap contact">
+<div class="rv"><span class="eyebrow">Venez nous voir</span><h2>Une envie de douceur ?</h2>
+<p class="lead">Passez à la boutique ou contactez-nous pour commander votre gâteau sur mesure.</p>
+<p style="margin-top:28px"><a class="btn" href="https://www.google.com/maps/search/Maison+Dolce" target="_blank" rel="noopener">Itinéraire Google Maps</a></p></div>
+<div class="box rv"><h3>Horaires</h3><ul>
+<li><span>Ouverture</span><b>9h00</b></li><li><span>Type</span><b>Pâtisserie</b></li><li><span>Adresse</span><b>À compléter</b></li><li><span>Téléphone</span><b>À compléter</b></li></ul></div>
+</div></section>
+
+<footer><span class="logo">Maison Dolce</span>Les délices de Dolce · © 2026</footer>
+
+<script>
+const M={
+"Pancakes":[["Pancake Choco","2 chocolats",350],["Pancake aux fruits","",550],["Pancake Miel","",300]],
+"Gaufres":[["Choco","2 chocolats",350],["Nutella","",450],["Nutella Banane","",550],["Dubaï","Pâte à tartiner pistache",550],["Pistachéo","Pistache 100%",600],["Aux fruits","Fruits de saison",500]],
+"Crêpes":[["Chocolat","2 chocolats",350],["Nutella","",400],["Nutella Banane","",500],["Dubaï","Pâte à tartiner pistache",550],["Pistachéo","Pistache 100%",600],["Aux fruits","Fruits de saison",500]],
+"Milkshakes":[["Palatono","Banane, caramel, glaçons, lait",450],["Fontana","Chocolat, Nutella, glaçons, boule de glace",400],["Reo","Chocolat, Oreo, lait",450],["Cacahuète","Beurre de cacahuète, glaçons, lait",450],["Healthey","Dattes, flocons d'avoine, fruits secs, banane",550]],
+"Mocktails":[["Piña Colada","Ananas, coco",400],["Blue Lady","Ananas, coco",350],["Pink Lady","Ananas, cerise, fraise, grenadine",400],["Fleur d'amour","Ananas, banane, mangue, grenadine",450],["Maison Dolce","Le choix du chef",500]],
+"Mojitos":[["Mojito Classique","Citron, menthe",400],["Mojito Ocean","Citron, menthe, Blue curaçao",450],["Mojito Red","Citron, menthe, cerise, grenadine, fraise",450],["Mojito Black","Citron, menthe, Coca-Cola",400],["Mojito Ginger","Citron, menthe, gingembre",400]],
+"Barista":[["L'Or","",200],["Café noir (caps)","",120],["Lait avec poudre","",100],["Café glacé","",250],["Affogato","",350],["Iced Macchiato","",350],["Frappuccino","",400],["Cappuccino","",250],["Mokaccino","",300]],
+"Boissons fraîches":[["Canette","",150],["Soda","",100],["Eau","",50],["Izem","",180],["Ifruit","",100]]
+};
+const tabs=document.getElementById('tabs'),panels=document.getElementById('panels');
+Object.keys(M).forEach((k,i)=>{
+ const b=document.createElement('button');b.textContent=k;tabs.appendChild(b);
+ const p=document.createElement('div');p.className='panel';
+ p.innerHTML=M[k].map(r=>`<div class="row"><div><b>${r[0]}</b>${r[1]?`<small>${r[1]}</small>`:''}</div><hr><span>${r[2]} DA</span></div>`).join('');
+ panels.appendChild(p);
+ b.onclick=()=>{[...tabs.children].forEach(x=>x.classList.remove('on'));[...panels.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');p.classList.add('on')};
+ if(!i)b.click();
+});
+const nav=document.getElementById('nav');
+addEventListener('scroll',()=>nav.classList.toggle('s',scrollY>40));
+const io=new IntersectionObserver(e=>e.forEach(x=>x.isIntersecting&&x.target.classList.add('in')),{threshold:.15});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
