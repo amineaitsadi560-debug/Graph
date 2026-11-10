@@ -60,12 +60,20 @@ section{padding:90px 0}
 footer{background:var(--magenta-d);color:#f7d9ea;text-align:center;padding:48px 20px}
 footer .script{font-size:2.6rem;color:#fff}
 @media(max-width:640px){nav a:not(.cta){display:none}.btn.ghost{margin:12px 0 0}.panel{padding:8px 20px}}
+
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.gallery figure{border-radius:22px;overflow:hidden;position:relative;box-shadow:0 10px 30px rgba(163,34,122,.15);aspect-ratio:4/5;background:var(--rose)}
+.gallery figure.wide{grid-column:span 2;aspect-ratio:auto}
+.gallery img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}
+.gallery figure:hover img{transform:scale(1.05)}
+.gallery figcaption{position:absolute;left:0;right:0;bottom:0;padding:34px 18px 14px;color:#fff;font-size:.9rem;background:linear-gradient(transparent,rgba(60,10,40,.75))}
+@media(max-width:640px){.gallery figure.wide{grid-column:auto}}
 </style>
 </head>
 <body>
 <header><div class="wrap">
   <a href="#top" class="logo script">Maison Dolce</a>
-  <nav><a href="#about">Univers</a><a href="#menu">Carte</a><a href="#contact">Contact</a></nav>
+  <nav><a href="#about">Univers</a><a href="#gallery">Galerie</a><a href="#menu">Carte</a><a href="#contact">Contact</a></nav>
 </div></header>
 
 <main id="top">
@@ -84,6 +92,15 @@ footer .script{font-size:2.6rem;color:#fff}
     <div class="card"><div class="ic">🧇</div><h3>Gaufres & Crêpes</h3><p>Nutella, pistache, Dubaï et fruits de saison, préparés à la commande.</p></div>
     <div class="card"><div class="ic">🍹</div><h3>Boissons fraîches</h3><p>Milkshakes, mocktails et mojitos pour toutes les envies.</p></div>
     <div class="card"><div class="ic">☕</div><h3>Barista</h3><p>Café noir, cappuccino, mokaccino, affogato et boissons glacées.</p></div>
+  </div>
+</div></section>
+
+<section id="gallery"><div class="wrap">
+  <div class="title"><div class="script">Nos créations</div><p>Un avant-goût de la maison</p></div>
+  <div class="gallery">
+    <figure><img src="img/cake-cherry.jpg" alt="Entremets cerise glacé Maison Dolce" loading="lazy"><figcaption>Entremets cerise</figcaption></figure>
+    <figure><img src="img/cake-stitch.jpg" alt="Gâteau d'anniversaire personnalisé" loading="lazy"><figcaption>Gâteaux personnalisés</figcaption></figure>
+    <figure class="wide"><img src="img/storefront.jpg" alt="Devanture de Maison Dolce" loading="lazy" style="object-position:center 55%"><figcaption>Notre boutique</figcaption></figure>
   </div>
 </div></section>
 
