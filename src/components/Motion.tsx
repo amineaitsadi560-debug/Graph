@@ -133,16 +133,11 @@ export function Embers({ count = 90 }: { count?: number }) {
   return <canvas ref={ref} className="embers" aria-hidden="true" />;
 }
 
-/** Soft glow that follows the mouse + magnetic pull on buttons marked .btn-primary / .magnetic (desktop only). */
+/** Subtle magnetic pull on primary buttons (desktop pointers only). */
 export function PointerFx() {
-  const glow = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (reduced() || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
-    const loop = () => { x += (tx - x) * 0.14; y += (ty - y) * 0.14; if (glow.current) glow.current.style.transform = `translate3d(${x - 200}px, ${y - 200}px, 0)`; raf = requestAnimationFrame(loop); };
-    raf = requestAnimationFrame(loop);
     const mv = (e: PointerEvent) => {
-      tx = e.clientX; ty = e.clientY; glow.current?.classList.add('on');
       document.querySelectorAll<HTMLElement>('.btn-primary, .magnetic').forEach((b) => {
         const r = b.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
         const dx = e.clientX - cx, dy = e.clientY - cy; const d = Math.hypot(dx, dy);
@@ -150,9 +145,9 @@ export function PointerFx() {
       });
     };
     window.addEventListener('pointermove', mv, { passive: true });
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('pointermove', mv); };
+    return () => window.removeEventListener('pointermove', mv);
   }, []);
-  return <div ref={glow} className="cursor-glow" aria-hidden="true" />;
+  return null;
 }
 
 /** Circular rotating text badge. */
@@ -167,19 +162,17 @@ export function SpinBadge({ text }: { text: string }) {
   );
 }
 
-/** Animated graphic panel used instead of photos until real photos exist. */
-export function MotionPanel({ kind, word, items }: { kind: 'strength' | 'cardio' | 'about'; word: string; items: string[] }) {
+/** Clean animated graphic panel (no text on top of it) used until real photos exist. */
+export function MotionPanel({ kind }: { kind: 'strength' | 'cardio' | 'about'; word?: string; items?: string[] }) {
   return (
-    <div className={`mpanel mp-${kind}`}>
+    <div className={`mpanel mp-${kind}`} role="img" aria-hidden="true">
       <div className="mp-bg" />
       <div className="mp-rings"><i /><i /><i /></div>
-      <div className="mp-word" aria-hidden="true">{word}</div>
-      <div className="mp-icon" aria-hidden="true">
+      <div className="mp-icon">
         {kind === 'cardio'
           ? <svg viewBox="0 0 120 120"><path className="mp-pulse" d="M8 64h26l12-34 18 62 14-42 8 14h26" fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" /></svg>
           : <svg viewBox="0 0 120 120" className="mp-bell"><path d="M28 36v48M40 28v64M80 28v64M92 36v48M40 60h40M16 48v24M104 48v24" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /></svg>}
       </div>
-      <ul className="mp-chips">{items.map((x, i) => <li key={i} style={{ animationDelay: `${i * 0.6}s` }}>{x}</li>)}</ul>
     </div>
   );
 }

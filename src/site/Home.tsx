@@ -57,7 +57,6 @@ function Hero({ data }: { data: SiteData }) {
     <section id="top" className="hero">
       <div className="hero-bg">
         <i className="blob b1" /><i className="blob b2" /><i className="blob b3" />
-        <div className="hero-word" aria-hidden="true">GYM</div>
         <Embers />
       </div>
       <div className="hero-shade" />

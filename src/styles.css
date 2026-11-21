@@ -494,3 +494,27 @@ body { background: var(--bg); }
 @media (max-width: 860px) { .hero { align-items: center; min-height: 0; padding: 120px 0 90px; } }
 .spinbadge { direction: ltr; }
 @media (max-width: 700px) { .demo-banner bdi { display: none; } .demo-banner { font-size: .7rem; } }
+
+/* ================= v5: motion lives in its own space, never over text ================= */
+.hero-word, .cursor-glow, .mp-word, .mp-chips { display: none !important; }
+/* hero: the animated stage (glow + embers) occupies only the side opposite the copy */
+.hero-bg { -webkit-mask-image: linear-gradient(to right, transparent 0, transparent 34%, #000 66%); mask-image: linear-gradient(to right, transparent 0, transparent 34%, #000 66%); }
+[dir='rtl'] .hero-bg { -webkit-mask-image: linear-gradient(to left, transparent 0, transparent 34%, #000 66%); mask-image: linear-gradient(to left, transparent 0, transparent 34%, #000 66%); }
+.hero-shade { background: linear-gradient(0deg, #0b0908 0%, transparent 28%); }
+[dir='rtl'] .hero-shade { background: linear-gradient(0deg, #0b0908 0%, transparent 28%); }
+.blob.b1 { inset-inline-end: -6%; top: 8%; } .blob.b2 { inset-inline-end: 14%; bottom: 4%; } .blob.b3 { inset-inline-start: auto; inset-inline-end: 30%; top: 14%; }
+.spinbadge { inset-inline-end: clamp(40px, 14vw, 230px); top: 50%; margin-top: -90px; width: clamp(130px, 17vw, 210px); }
+.hero-in { position: relative; z-index: 2; }
+@media (max-width: 860px) {
+  .hero-bg { -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 22%, transparent 48%); mask-image: linear-gradient(to bottom, #000 0, #000 22%, transparent 48%); }
+  [dir='rtl'] .hero-bg { -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 22%, transparent 48%); mask-image: linear-gradient(to bottom, #000 0, #000 22%, transparent 48%); }
+  .spinbadge { top: 96px; margin-top: 0; width: 92px; inset-inline-end: 20px; }
+}
+/* cards: highlight sits behind the text */
+.plan > * { position: relative; z-index: 1; }
+.plan::before { z-index: 0; }
+/* panels: a clean, centred graphic */
+.mpanel .mp-icon { width: 30%; }
+.mp-rings i { border-color: rgba(255,147,64,.4); }
+/* calmer, more deliberate ticker */
+.marquee-track { animation-duration: 55s; }
