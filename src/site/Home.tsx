@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n, type Key } from '../i18n';
 import { LangSwitch } from '../components/LangSwitch';
-import { Art, BrandMark, Photo } from '../components/Art';
+import { BrandMark, Photo } from '../components/Art';
 import { Reveal } from '../components/Reveal';
-import { CountUp, Marquee, ParallaxFrame, ScrollProgress, Words, useTilt } from '../components/Motion';
+import { CountUp, Embers, Marquee, ParallaxFrame, PointerFx, ScrollProgress, SpinBadge, Words, useTilt } from '../components/Motion';
 import { IconCalendar, IconCheck, IconDumbbell, IconHeart, IconMenu, IconNav, IconPhone, IconPin, IconTag, IconX } from '../components/Icons';
 import type { BookingKind, Plan } from '../lib/types';
 import { fmtPrice, fmtWeekdayLong, hhmm, localized, telHref, waHref } from '../lib/utils';
@@ -49,18 +49,19 @@ function Header() {
   );
 }
 
-function HeroBg() {
-  return <div className="hero-bg"><Art kind="hero" /></div>;
-}
-
 function Hero({ data }: { data: SiteData }) {
   const { t, lang } = useI18n();
   const { settings } = data;
   const dec = lang === 'en' ? '.' : ',';
   return (
     <section id="top" className="hero">
-      <HeroBg />
+      <div className="hero-bg">
+        <i className="blob b1" /><i className="blob b2" /><i className="blob b3" />
+        <div className="hero-word" aria-hidden="true">GYM</div>
+        <Embers />
+      </div>
       <div className="hero-shade" />
+      <SpinBadge text={`MILINIUM CHERGUI • ${t('hero_eyebrow')}`} />
       <div className="container hero-in">
         <div className="hero-copy">
           <span className="eyebrow rise" style={{ animationDelay: '100ms' }}>{t('hero_eyebrow')}</span>
@@ -105,7 +106,7 @@ function About() {
               <p className="muted" style={{ marginTop: 12 }}>{t('about_p2')}</p>
             </div>
           </Reveal>
-          <Reveal delay={120}><div className="collage"><ParallaxFrame className="split-art c1"><Photo name="about" kind="about" /></ParallaxFrame><ParallaxFrame className="split-art c2"><Photo name="strength" kind="strength" /></ParallaxFrame></div></Reveal>
+          <Reveal delay={120}><div className="collage"><ParallaxFrame className="split-art c1"><Photo name="about" kind="about" word="MILINIUM" items={[t('about_f1_t'), t('about_f2_t'), t('about_f3_t'), t('about_f4_t')]} /></ParallaxFrame><ParallaxFrame className="split-art c2"><Photo name="cardio" kind="cardio" word="CARDIO" items={[t('nav_cardio')]} /></ParallaxFrame></div></Reveal>
         </div>
         <div className="features">
           {f.map((x, i) => (
@@ -132,7 +133,7 @@ function Feature({ id, kind, flip, eyebrow, title, text, bullets }: { id: string
               <a className="btn btn-ghost" style={{ marginTop: 24 }} href="#plans">{t('hero_cta_plans')}</a>
             </div>
           </Reveal>
-          <ParallaxFrame className="split-art"><Photo name={id} kind={kind} /></ParallaxFrame>
+          <ParallaxFrame className="split-art"><Photo name={id} kind={kind} word={t(title)} items={bullets.map((b) => t(b))} /></ParallaxFrame>
         </div>
       </div>
     </section>
@@ -249,6 +250,7 @@ export default function Home() {
   return (
     <>
       <ScrollProgress />
+      <PointerFx />
       <Header />
       <main>
         <Hero data={data} />

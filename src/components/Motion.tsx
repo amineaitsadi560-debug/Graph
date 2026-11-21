@@ -88,3 +88,98 @@ export function useTilt() {
     onPointerLeave: (e: React.PointerEvent<HTMLElement>) => { const el = e.currentTarget; el.style.setProperty('--rx', '0deg'); el.style.setProperty('--ry', '0deg'); },
   };
 }
+
+/** Rising embers: a canvas of sparks that drift up and flee the cursor. */
+export function Embers({ count = 90 }: { count?: number }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const c = ref.current; if (!c) return;
+    const ctx = c.getContext('2d'); if (!ctx) return;
+    const mouse = { x: -999, y: -999 };
+    let w = 0, h = 0, raf = 0, visible = true;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const colors = ['255,147,64', '255,77,28', '255,46,77', '255,190,90'];
+    type P = { x: number; y: number; r: number; v: number; a: number; ph: number; col: string };
+    const mk = (init: boolean): P => ({ x: Math.random() * w, y: init ? Math.random() * h : h + 10, r: 0.6 + Math.random() * 2.4, v: 0.25 + Math.random() * 1.1, a: 0.25 + Math.random() * 0.75, ph: Math.random() * 6.28, col: colors[(Math.random() * colors.length) | 0] });
+    let ps: P[] = [];
+    const resize = () => { const r = c.getBoundingClientRect(); w = r.width; h = r.height; c.width = w * dpr; c.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ps = Array.from({ length: Math.round(count * Math.min(1, w / 1100 + 0.35)) }, () => mk(true)); };
+    resize();
+    const still = reduced();
+    const draw = (t: number) => {
+      raf = requestAnimationFrame(draw);
+      if (!visible) return;
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'lighter';
+      for (const p of ps) {
+        if (!still) {
+          p.y -= p.v; p.x += Math.sin(t / 900 + p.ph) * 0.35;
+          const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
+          if (d < 110) { p.x += (dx / d) * 2.2; p.y += (dy / d) * 2.2; }
+          if (p.y < -10) Object.assign(p, mk(false));
+        }
+        const tw = 0.6 + 0.4 * Math.sin(t / 300 + p.ph);
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 5);
+        g.addColorStop(0, `rgba(${p.col},${p.a * tw})`); g.addColorStop(1, `rgba(${p.col},0)`);
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 5, 0, 6.283); ctx.fill();
+      }
+    };
+    raf = requestAnimationFrame(draw);
+    const mv = (e: PointerEvent) => { const r = c.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; };
+    const io = new IntersectionObserver((es) => { visible = es[0].isIntersecting; });
+    io.observe(c);
+    window.addEventListener('pointermove', mv, { passive: true }); window.addEventListener('resize', resize);
+    return () => { cancelAnimationFrame(raf); io.disconnect(); window.removeEventListener('pointermove', mv); window.removeEventListener('resize', resize); };
+  }, [count]);
+  return <canvas ref={ref} className="embers" aria-hidden="true" />;
+}
+
+/** Soft glow that follows the mouse + magnetic pull on buttons marked .btn-primary / .magnetic (desktop only). */
+export function PointerFx() {
+  const glow = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (reduced() || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+    const loop = () => { x += (tx - x) * 0.14; y += (ty - y) * 0.14; if (glow.current) glow.current.style.transform = `translate3d(${x - 200}px, ${y - 200}px, 0)`; raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop);
+    const mv = (e: PointerEvent) => {
+      tx = e.clientX; ty = e.clientY; glow.current?.classList.add('on');
+      document.querySelectorAll<HTMLElement>('.btn-primary, .magnetic').forEach((b) => {
+        const r = b.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const dx = e.clientX - cx, dy = e.clientY - cy; const d = Math.hypot(dx, dy);
+        if (d < 110) b.style.transform = `translate(${dx * 0.22}px, ${dy * 0.3}px)`; else if (b.style.transform) b.style.transform = '';
+      });
+    };
+    window.addEventListener('pointermove', mv, { passive: true });
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('pointermove', mv); };
+  }, []);
+  return <div ref={glow} className="cursor-glow" aria-hidden="true" />;
+}
+
+/** Circular rotating text badge. */
+export function SpinBadge({ text }: { text: string }) {
+  const full = text + ' •';
+  return (
+    <svg className="spinbadge" viewBox="0 0 200 200" aria-hidden="true">
+      <defs><path id="sb" d="M100 100m-78 0a78 78 0 1 1 156 0a78 78 0 1 1-156 0" /></defs>
+      <g className="spinbadge-ring"><text fontSize="15" fontWeight="700" fill="currentColor"><textPath href="#sb" textLength="486" lengthAdjust="spacing">{full}</textPath></text></g>
+      <path d="M72 100h56M80 86v28M120 86v28M70 92v16M130 92v16" stroke="var(--blue-2)" strokeWidth="6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** Animated graphic panel used instead of photos until real photos exist. */
+export function MotionPanel({ kind, word, items }: { kind: 'strength' | 'cardio' | 'about'; word: string; items: string[] }) {
+  return (
+    <div className={`mpanel mp-${kind}`}>
+      <div className="mp-bg" />
+      <div className="mp-rings"><i /><i /><i /></div>
+      <div className="mp-word" aria-hidden="true">{word}</div>
+      <div className="mp-icon" aria-hidden="true">
+        {kind === 'cardio'
+          ? <svg viewBox="0 0 120 120"><path className="mp-pulse" d="M8 64h26l12-34 18 62 14-42 8 14h26" fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          : <svg viewBox="0 0 120 120" className="mp-bell"><path d="M28 36v48M40 28v64M80 28v64M92 36v48M40 60h40M16 48v24M104 48v24" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /></svg>}
+      </div>
+      <ul className="mp-chips">{items.map((x, i) => <li key={i} style={{ animationDelay: `${i * 0.6}s` }}>{x}</li>)}</ul>
+    </div>
+  );
+}
