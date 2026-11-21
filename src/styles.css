@@ -518,3 +518,35 @@ body { background: var(--bg); }
 .mp-rings i { border-color: rgba(255,147,64,.4); }
 /* calmer, more deliberate ticker */
 .marquee-track { animation-duration: 55s; }
+
+/* ================= v6: real images ================= */
+.hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 70% 50%; animation: kenburns 30s ease-in-out infinite alternate; transform-origin: 70% 60%; }
+.hero-bg { -webkit-mask-image: linear-gradient(to right, transparent 0, transparent 22%, #000 58%); mask-image: linear-gradient(to right, transparent 0, transparent 22%, #000 58%); }
+[dir='rtl'] .hero-bg { -webkit-mask-image: linear-gradient(to left, transparent 0, transparent 22%, #000 58%); mask-image: linear-gradient(to left, transparent 0, transparent 22%, #000 58%); }
+[dir='rtl'] .hero-img { transform: scaleX(-1); object-position: 30% 50%; transform-origin: 30% 60%; }
+.blob { opacity: .22; }
+.spinbadge { display: none; }
+.hero-credit { position: absolute; z-index: 3; inset-inline-end: var(--gutter); bottom: 14px; font-size: .68rem; color: rgba(255,255,255,.55); background: rgba(8,6,5,.55); padding: 2px 9px; border-radius: 999px; }
+.split-art .tag { display: inline-block !important; z-index: 3; font-size: .66rem; background: rgba(8,6,5,.6); color: rgba(255,255,255,.75); }
+.pframe-clip img { object-position: 50% 40%; }
+@media (max-width: 860px) {
+  .hero-bg { -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 20%, transparent 46%); mask-image: linear-gradient(to bottom, #000 0, #000 20%, transparent 46%); }
+  [dir='rtl'] .hero-bg { -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 20%, transparent 46%); mask-image: linear-gradient(to bottom, #000 0, #000 20%, transparent 46%); }
+  .hero-img { object-position: 78% 50%; }
+}
+
+/* hero photo lives only in the right part of the hero, clear of the text column */
+.hero-img { inset: 0 0 0 auto; inset-inline: auto 0; width: 64%; object-position: 100% 50%; }
+.hero-bg { -webkit-mask-image: linear-gradient(to right, transparent 0, transparent 36%, #000 52%); mask-image: linear-gradient(to right, transparent 0, transparent 36%, #000 52%); }
+[dir='rtl'] .hero-bg { -webkit-mask-image: linear-gradient(to left, transparent 0, transparent 36%, #000 52%); mask-image: linear-gradient(to left, transparent 0, transparent 36%, #000 52%); }
+[dir='rtl'] .hero-img { object-position: 0% 50%; transform: scaleX(-1); }
+@media (max-width: 860px) { .hero-img { width: 100%; inset-inline: 0; object-position: 80% 50%; } }
+.hero-bg { -webkit-mask-image: linear-gradient(to right, transparent 0, transparent 50%, #000 66%); mask-image: linear-gradient(to right, transparent 0, transparent 50%, #000 66%); }
+[dir='rtl'] .hero-bg { -webkit-mask-image: linear-gradient(to left, transparent 0, transparent 50%, #000 66%); mask-image: linear-gradient(to left, transparent 0, transparent 50%, #000 66%); }
+.hero p.lead { max-width: 46ch; }
+@media (max-width: 860px) {
+  .hero-bg, [dir='rtl'] .hero-bg { -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 20%, transparent 46%); mask-image: linear-gradient(to bottom, #000 0, #000 20%, transparent 46%); }
+}
+
+[dir='rtl'] .hero-img { transform: none; object-position: 0% 50%; transform-origin: 30% 60%; }
+.header:not(.scrolled):not(.open) { background: linear-gradient(180deg, rgba(8,6,5,.8), transparent); }

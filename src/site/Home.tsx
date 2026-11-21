@@ -50,15 +50,17 @@ function Header() {
 }
 
 function Hero({ data }: { data: SiteData }) {
-  const { t, lang } = useI18n();
+  const { t, lang, dir } = useI18n();
   const { settings } = data;
   const dec = lang === 'fr' ? ',' : '.';
   return (
     <section id="top" className="hero">
       <div className="hero-bg">
+        <img className="hero-img" src={dir === 'rtl' ? '/images/hero-rtl.jpg' : '/images/hero.jpg'} alt="" fetchPriority="high" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
         <i className="blob b1" /><i className="blob b2" /><i className="blob b3" />
-        <Embers />
+        <Embers count={50} />
       </div>
+      <span className="hero-credit">{t('photo_ai')}</span>
       <div className="hero-shade" />
       <SpinBadge text="MILINIUM CHERGUI • BACHDJERRAH • ALGER" />
       <div className="container hero-in">
