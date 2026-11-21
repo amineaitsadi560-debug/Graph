@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { LangSwitch } from '../components/LangSwitch';
 import { BrandMark } from '../components/Art';
-import { configured } from '../lib/supabase';
+import { configured, isDemo } from '../lib/supabase';
 import { useAuth } from './auth';
 
 export default function Login() {
   const { t } = useI18n();
   const { signIn, denied } = useAuth();
-  const [email, setEmail] = useState('');
-  const [pw, setPw] = useState('');
+  const [email, setEmail] = useState(isDemo ? 'owner@demo.dz' : '');
+  const [pw, setPw] = useState(isDemo ? 'demo1234' : '');
   const [busy, setBusy] = useState(false);
   const [bad, setBad] = useState(false);
   async function submit(e: FormEvent) {

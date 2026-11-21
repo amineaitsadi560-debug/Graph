@@ -5,3 +5,4 @@ dist
 .netlify
 *.log
 dist-e2e
+dist-demo

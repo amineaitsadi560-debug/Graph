@@ -8,6 +8,7 @@ import { IconCalendar, IconCheck, IconDumbbell, IconHeart, IconMenu, IconNav, Ic
 import type { BookingKind, Plan } from '../lib/types';
 import { fmtPrice, fmtWeekdayLong, hhmm, localized, telHref, waHref } from '../lib/utils';
 import { BookingForm } from './BookingForm';
+import { isDemo } from '../lib/supabase';
 import { useSiteData, type SiteData } from './data';
 
 const NAV: { id: string; k: Key }[] = [
@@ -216,7 +217,7 @@ function Contact({ data }: { data: SiteData }) {
               <div className="info"><div className="ico"><IconCalendar /></div><div style={{ flex: 1 }}><b style={{ marginBottom: 8 }}>{t('hours_title')}</b><Hours data={data} /></div></div>
             </div>
           </Reveal>
-          <Reveal delay={120}><div className="map"><iframe title={t('map_title')} src={mapSrc} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen /></div></Reveal>
+          <Reveal delay={120}><div className="map">{isDemo ? <a className="map-fallback" href={s.maps_url} target="_blank" rel="noopener noreferrer"><IconPin size={40} /><b>{t('map_title')}</b><span dir="ltr">{s.address}</span></a> : <iframe title={t('map_title')} src={mapSrc} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />}</div></Reveal>
         </div>
       </div>
     </section>
