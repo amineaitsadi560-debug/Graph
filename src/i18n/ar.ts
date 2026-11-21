@@ -45,6 +45,8 @@ const ar: Dict = {
   cardio_eyebrow: 'التحمّل', cardio_title: 'كارديو: أجهزة الجري والدراجات',
   cardio_text: 'حسّن تحمّلك واحرق السعرات واعتنِ بقلبك مع أجهزة الكارديو لدينا.',
   cardio_b1: 'أجهزة الجري', cardio_b2: 'الدراجات', cardio_b3: 'التحمّل وإنقاص الوزن', cardio_b4: 'باقات كارديو مخصّصة',
+  photo_ai: 'صورة مولّدة بالذكاء الاصطناعي',
+  fact_rating: 'تقييم Google', fact_reviews: 'تقييمات Google', fact_plans: 'باقات',
   photo_hint: 'رسم توضيحي',
   plans_eyebrow: 'الاشتراكات', plans_title: 'الأسعار والباقات', plans_sub: 'اختر باقتك ثم احجز تسجيلك عبر الإنترنت.',
   plans_cat_muscu: 'كمال الأجسام', plans_cat_cardio: 'كارديو', plan_choose: 'اختر هذه الباقة', plan_best: 'الأكثر طلبًا', price_tbc: 'السعر قيد التأكيد',

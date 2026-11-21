@@ -4,7 +4,8 @@ import { useI18n, type Key } from '../i18n';
 import { LangSwitch } from '../components/LangSwitch';
 import { Art, BrandMark, Photo } from '../components/Art';
 import { Reveal } from '../components/Reveal';
-import { IconCalendar, IconCheck, IconDumbbell, IconHeart, IconMenu, IconNav, IconPhone, IconPin, IconStar, IconTag, IconX } from '../components/Icons';
+import { CountUp, Marquee, ParallaxFrame, ScrollProgress, Words, useTilt } from '../components/Motion';
+import { IconCalendar, IconCheck, IconDumbbell, IconHeart, IconMenu, IconNav, IconPhone, IconPin, IconTag, IconX } from '../components/Icons';
 import type { BookingKind, Plan } from '../lib/types';
 import { fmtPrice, fmtWeekdayLong, hhmm, localized, telHref, waHref } from '../lib/utils';
 import { BookingForm } from './BookingForm';
@@ -48,31 +49,42 @@ function Header() {
   );
 }
 
+function HeroBg() {
+  return <div className="hero-bg"><Art kind="hero" /></div>;
+}
+
 function Hero({ data }: { data: SiteData }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { settings } = data;
+  const dec = lang === 'en' ? '.' : ',';
   return (
     <section id="top" className="hero">
-      <div className="hero-grid" />
+      <HeroBg />
+      <div className="hero-shade" />
       <div className="container hero-in">
-        <div>
-          <span className="eyebrow">{t('hero_eyebrow')}</span>
-          <h1>{t('hero_title_1')} <em>{t('hero_title_2')}</em></h1>
-          <p className="lead">{t('hero_sub')}</p>
-          <div className="hero-cta">
+        <div className="hero-copy">
+          <span className="eyebrow rise" style={{ animationDelay: '100ms' }}>{t('hero_eyebrow')}</span>
+          <h1><Words text={t('hero_title_1')} delay={250} /><em><Words text={t('hero_title_2')} delay={500} /></em></h1>
+          <p className="lead rise" style={{ animationDelay: '800ms' }}>{t('hero_sub')}</p>
+          <div className="hero-cta rise" style={{ animationDelay: '950ms' }}>
             <a className="btn btn-primary" href="#booking"><IconCalendar size={18} />{t('hero_cta_book')}</a>
             <a className="btn btn-ghost" href="#plans"><IconTag size={18} />{t('hero_cta_plans')}</a>
           </div>
-          {settings.rating_value != null && settings.rating_count != null && (
-            <div className="chip"><IconStar size={16} />{t('hero_rating', { value: String(settings.rating_value).replace('.', lang0()), count: settings.rating_count })}</div>
-          )}
         </div>
-        <div className="hero-art"><Art kind="hero" /></div>
+        <dl className="facts rise" style={{ animationDelay: '1100ms' }}>
+          {settings.rating_value != null && <div><dt>{t('fact_rating')}</dt><dd><CountUp to={settings.rating_value} decimals={1} format={(n) => n.toFixed(1).replace('.', dec)} /><small>/5</small></dd></div>}
+          {settings.rating_count != null && <div><dt>{t('fact_reviews')}</dt><dd><CountUp to={settings.rating_count} /></dd></div>}
+          {data.plans.length > 0 && <div><dt>{t('fact_plans')}</dt><dd><CountUp to={data.plans.length} /></dd></div>}
+        </dl>
       </div>
       <div className="scroll-cue" aria-label={t('scroll')} />
     </section>
   );
-  function lang0() { return document.documentElement.lang === 'en' ? '.' : ','; }
+}
+
+function Ticker() {
+  const { t } = useI18n();
+  return <Marquee items={[t('nav_strength'), t('nav_cardio'), t('nav_plans'), t('hero_eyebrow'), t('nav_booking')]} />;
 }
 
 function About() {
@@ -93,7 +105,7 @@ function About() {
               <p className="muted" style={{ marginTop: 12 }}>{t('about_p2')}</p>
             </div>
           </Reveal>
-          <Reveal delay={120}><div className="split-art"><Photo name="about" kind="about" /></div></Reveal>
+          <Reveal delay={120}><div className="collage"><ParallaxFrame className="split-art c1"><Photo name="about" kind="about" /></ParallaxFrame><ParallaxFrame className="split-art c2"><Photo name="strength" kind="strength" /></ParallaxFrame></div></Reveal>
         </div>
         <div className="features">
           {f.map((x, i) => (
@@ -120,7 +132,7 @@ function Feature({ id, kind, flip, eyebrow, title, text, bullets }: { id: string
               <a className="btn btn-ghost" style={{ marginTop: 24 }} href="#plans">{t('hero_cta_plans')}</a>
             </div>
           </Reveal>
-          <Reveal delay={120} className="split-art-wrap"><div className="split-art"><Photo name={id} kind={kind} /></div></Reveal>
+          <ParallaxFrame className="split-art"><Photo name={id} kind={kind} /></ParallaxFrame>
         </div>
       </div>
     </section>
@@ -129,13 +141,14 @@ function Feature({ id, kind, flip, eyebrow, title, text, bullets }: { id: string
 
 function PlanCard({ p, onChoose }: { p: Plan; onChoose: (id: string) => void }) {
   const { t, lang } = useI18n();
+  const tilt = useTilt();
   return (
-    <article className={`plan ${p.is_featured ? 'featured' : ''}`} data-testid="plan-card">
+    <article className={`plan ${p.is_featured ? 'featured' : ''}`} data-testid="plan-card" {...tilt}>
       {p.is_featured && <span className="badge badge-confirmed ribbon">{t('plan_best')}</span>}
       <h4>{localized(p, 'name', lang)}</h4>
       <p className="detail">{localized(p, 'detail', lang)}</p>
       {p.price_da != null
-        ? <div className="price"><b>{fmtPrice(p.price_da)}</b><small>{t('da')}</small></div>
+        ? <div className="price"><b><CountUp to={p.price_da} format={fmtPrice} duration={900} /></b><small>{t('da')}</small></div>
         : <div className="price tbc">{t('price_tbc')}</div>}
       <button className="btn btn-primary" type="button" onClick={() => onChoose(p.id)}>{t('plan_choose')}</button>
     </article>
@@ -235,9 +248,11 @@ export default function Home() {
   };
   return (
     <>
+      <ScrollProgress />
       <Header />
       <main>
         <Hero data={data} />
+        <Ticker />
         <About />
         <Feature id="strength" kind="strength" flip eyebrow="strength_eyebrow" title="strength_title" text="strength_text" bullets={['strength_b1', 'strength_b2', 'strength_b3', 'strength_b4']} />
         <Feature id="cardio" kind="cardio" eyebrow="cardio_eyebrow" title="cardio_title" text="cardio_text" bullets={['cardio_b1', 'cardio_b2', 'cardio_b3', 'cardio_b4']} />

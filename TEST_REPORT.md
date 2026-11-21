@@ -10,7 +10,7 @@ Environment: sandbox with no access to supabase.com, netlify.com or Unsplash. Th
 - status workflow (pending→confirmed/rejected/cancelled, confirmed→completed…, completed final), reopening into a full slot refused, reschedule re-validated
 - 8 simultaneous requests for the last place → exactly 1 succeeds
 
-**Public site (`e2e/public.e2e.mjs`, real Chromium, 47 checks)**: French default, Arabic RTL, English; prices hidden until published, cardio prices not invented; full phone booking (iPhone 13 / Pixel 5) stored in DB; double-click = 1 booking; client validation; stale-slot conflict message; blocked/full slots disabled; no-hours state; no horizontal overflow at 360/390/768/1440 px in FR/AR/EN; language persistence.
+**Public site (`e2e/public.e2e.mjs`, real Chromium, 47 checks; re-run after the v2 animation/illustration redesign)**: French default, Arabic RTL, English; prices hidden until published, cardio prices not invented; full phone booking (iPhone 13 / Pixel 5) stored in DB; double-click = 1 booking; client validation; stale-slot conflict message; blocked/full slots disabled; no-hours state; no horizontal overflow at 360/390/768/1440 px in FR/AR/EN; language persistence.
 Caveat: HTTP transport emulated by Playwright running equivalent SQL as role `anon`.
 
 ## NOT verified yet

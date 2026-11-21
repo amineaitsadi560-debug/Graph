@@ -52,6 +52,8 @@ const fr = {
   cardio_eyebrow: 'Endurance', cardio_title: 'Cardio : tapis de course & vélos',
   cardio_text: 'Améliorez votre endurance, brûlez des calories et entretenez votre cœur avec nos équipements de cardio.',
   cardio_b1: 'Tapis de course', cardio_b2: 'Vélos', cardio_b3: 'Endurance et perte de poids', cardio_b4: 'Forfaits cardio dédiés',
+  photo_ai: 'Image générée par IA',
+  fact_rating: 'Note Google', fact_reviews: 'Avis Google', fact_plans: 'Formules',
   photo_hint: 'Illustration',
   // ---- plans
   plans_eyebrow: 'Abonnements', plans_title: 'Tarifs & formules', plans_sub: 'Choisissez votre formule puis réservez votre inscription en ligne.',

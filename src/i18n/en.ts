@@ -45,6 +45,8 @@ const en: Dict = {
   cardio_eyebrow: 'Endurance', cardio_title: 'Cardio: treadmills & bikes',
   cardio_text: 'Improve your endurance, burn calories and look after your heart with our cardio equipment.',
   cardio_b1: 'Treadmills', cardio_b2: 'Bikes', cardio_b3: 'Endurance and weight loss', cardio_b4: 'Dedicated cardio packages',
+  photo_ai: 'AI-generated image',
+  fact_rating: 'Google rating', fact_reviews: 'Google reviews', fact_plans: 'Plans',
   photo_hint: 'Illustration',
   plans_eyebrow: 'Memberships', plans_title: 'Pricing & plans', plans_sub: 'Choose your plan, then book your registration online.',
   plans_cat_muscu: 'Strength training', plans_cat_cardio: 'Cardio', plan_choose: 'Choose this plan', plan_best: 'Popular', price_tbc: 'Price to be confirmed',
