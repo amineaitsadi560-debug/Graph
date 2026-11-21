@@ -16,3 +16,8 @@ Caveat: HTTP transport emulated by Playwright running equivalent SQL as role `an
 ## NOT verified yet
 - Dashboard UI (login, list, approve/reject, calendar, price/hours editing) in a browser: it compiles (`tsc`) and builds but has **not been exercised**; needs PostgREST + GoTrue (a PostgREST test run was blocked by the sandbox permission layer).
 - Supabase Auth login, Realtime push, real RLS through PostgREST/JWT, Google Maps iframe rendering, Netlify deployment, real GitHub→Netlify pipeline.
+
+## Translation / Arabic review (v4)
+- FR / AR / EN dictionaries are type-checked against each other (a missing key fails `tsc`); aria-labels, page title and demo banner are translated too.
+- Arabic: Latin digits (Algerian convention) with bidi isolation for phones, prices, times and ratings; no letter-spacing on Arabic text (keeps letters joined); mirrored layout; Arabic-aware heading line-heights.
+- Checked visually (screenshots, desktop + iPhone 13): hero, plans, booking confirmation, contact, dashboard overview in Arabic.

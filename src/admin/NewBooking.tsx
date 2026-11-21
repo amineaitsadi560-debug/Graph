@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useI18n } from '../i18n';
 import { ApiError, getSlots, listAllPlans, listAllServices, staffCreateBooking } from '../lib/api';
 import type { BookingKind, Plan, Service, Slot } from '../lib/types';
-import { fmtDate, hhmm, localized, todayAlgiers } from '../lib/utils';
+import { fmtDate, hhmm, localized, ltr, todayAlgiers } from '../lib/utils';
 import { useToast } from '../components/Toast';
 
 export default function NewBooking({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
@@ -47,9 +47,9 @@ export default function NewBooking({ onClose, onCreated }: { onClose: () => void
           <div className="field full"><label>{t('f_date')}</label><input type="date" className="input" value={date} onChange={(e) => setDate(e.target.value)} /></div>
           <div className="field full">
             {slots === null ? <span className="muted">{t('slots_loading')}</span> : slots.length === 0 ? <span className="muted">{t('slots_none')}</span> : (
-              <div className="slots">{slots.map((s) => <button type="button" key={s.slot_start} className={`slot ${s.audience === 'women' ? 'women' : ''}`} disabled={s.status !== 'ok'} aria-pressed={start === s.slot_start} onClick={() => setStart(s.slot_start)}><span>{hhmm(s.slot_start)}</span><small>{s.status === 'ok' ? t('slot_places', { n: s.remaining }) : s.status === 'full' ? t('slot_full') : s.status === 'blocked' ? t('slot_blocked') : t('slot_closed')}</small></button>)}</div>
+              <div className="slots">{slots.map((s) => <button type="button" key={s.slot_start} className={`slot ${s.audience === 'women' ? 'women' : ''}`} disabled={s.status !== 'ok'} aria-pressed={start === s.slot_start} onClick={() => setStart(s.slot_start)}><span>{ltr(hhmm(s.slot_start))}</span><small>{s.status === 'ok' ? t('slot_places', { n: s.remaining }) : s.status === 'full' ? t('slot_full') : s.status === 'blocked' ? t('slot_blocked') : t('slot_closed')}</small></button>)}</div>
             )}
-            {start && <span className="muted" style={{ fontSize: '.85rem' }}>{fmtDate(date, lang)} · {hhmm(start)}</span>}
+            {start && <span className="muted" style={{ fontSize: '.85rem' }}>{fmtDate(date, lang)} · {ltr(hhmm(start))}</span>}
           </div>
           <div className="field"><label>{t('f_name')}</label><input className="input" value={name} onChange={(e) => setName(e.target.value)} required maxLength={100} /></div>
           <div className="field"><label>{t('f_phone')}</label><input className="input" type="tel" dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} required /></div>

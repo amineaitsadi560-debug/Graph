@@ -15,6 +15,9 @@ export function endOfMonth(ymd: string): string {
   const [y, m] = ymd.split('-').map(Number); return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
 }
 export const hhmm = (t: string | null | undefined) => (t ? t.slice(0, 5) : '');
+/** Isolate left-to-right runs (numbers, times, phones) so they never get reordered inside Arabic (RTL) text. */
+export const ltr = (s: string | number) => `\u2066${s}\u2069`;
+export const range = (a: string | null | undefined, b: string | null | undefined) => ltr(`${hhmm(a)}–${hhmm(b)}`);
 
 const localeOf = (l: Lang) => (l === 'ar' ? 'ar-DZ-u-nu-latn' : l === 'en' ? 'en-GB' : 'fr-FR');
 export function fmtDate(ymd: string, l: Lang, opts: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' }): string {

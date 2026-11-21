@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useI18n, type Key } from '../i18n';
 import { ApiError, setBookingNote, setBookingStatus } from '../lib/api';
 import type { Booking, BookingStatus } from '../lib/types';
-import { fmtDate, hhmm, localized, telHref } from '../lib/utils';
+import { fmtDate, localized, ltr, range, telHref } from '../lib/utils';
 import { useToast } from '../components/Toast';
 import { IconPhone } from '../components/Icons';
 
@@ -49,8 +49,8 @@ export function BookingCard({ b, onChanged }: { b: Booking; onChanged: () => voi
       </div>
       <div className="bk-meta">
         <span><b>{bookingLabel(b, lang)}</b></span>
-        <span><b>{fmtDate(b.booking_date, lang, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</b> · {hhmm(b.start_time)}–{hhmm(b.end_time)}</span>
-        <span>{t('received')} {new Date(b.created_at).toLocaleString(lang === 'ar' ? 'ar-DZ-u-nu-latn' : lang === 'en' ? 'en-GB' : 'fr-FR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Africa/Algiers' })}</span>
+        <span><b>{fmtDate(b.booking_date, lang, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</b> · {range(b.start_time, b.end_time)}</span>
+        <span>{t('received')} {fmtDate(new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Algiers' }).format(new Date(b.created_at)), lang, { day: 'numeric', month: 'short', year: 'numeric' })} {ltr(new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Algiers' }).format(new Date(b.created_at)))}</span>
       </div>
       {b.message && <div className="bk-msg">“{b.message}”</div>}
       {b.staff_note && !noteOpen && <div className="bk-msg" style={{ borderInlineStart: '3px solid var(--warn)' }}>📝 {b.staff_note}</div>}

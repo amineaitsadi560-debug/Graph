@@ -22,11 +22,11 @@ function initial(): Lang {
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(initial);
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
-  useEffect(() => { document.documentElement.lang = lang; document.documentElement.dir = dir; }, [lang, dir]);
+  useEffect(() => { document.documentElement.lang = lang; document.documentElement.dir = dir; if (!location.pathname.startsWith('/admin')) document.title = dicts[lang].meta_title; }, [lang, dir]);
   const setLang = useCallback((l: Lang) => { setLangState(l); try { localStorage.setItem('lang', l); } catch { /* ignore */ } }, []);
   const t = useCallback((k: Key, vars?: Record<string, string | number>) => {
     let s: string = dicts[lang][k] ?? fr[k] ?? k;
-    if (vars) for (const [n, v] of Object.entries(vars)) s = s.replaceAll(`{${n}}`, String(v));
+    if (vars) for (const [n, v] of Object.entries(vars)) { const str = String(v); s = s.replaceAll(`{${n}}`, lang === 'ar' && /[0-9A-Za-z+]/.test(str) ? `\u2066${str}\u2069` : str); }
     return s;
   }, [lang]);
   const err = useCallback((c: string) => {

@@ -6,7 +6,7 @@ import {
   listAllServices, listBlocked, listStaff, removeStaff, savePlan, saveService, updateSettings, getHours, type ErrorCode,
 } from '../lib/api';
 import type { Audience, OpeningHour, Plan, Service, Settings } from '../lib/types';
-import { fmtDate, fmtWeekdayLong, hhmm, todayAlgiers } from '../lib/utils';
+import { fmtDate, fmtWeekdayLong, range, todayAlgiers } from '../lib/utils';
 import { useToast } from '../components/Toast';
 import { useAuth } from './auth';
 import { useLoad } from './hooks';
@@ -149,7 +149,7 @@ function Hours() {
       <div className="panel">{hours.data && hours.data.length === 0 && <p className="muted">{t('hr_none')}</p>}
         <div className="list">{ORDER.map((d) => byDay(d).length ? (
           <div key={d} className="trow"><b>{fmtWeekdayLong(d, lang)}</b>{byDay(d).map((x) => (
-            <div key={x.id} style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}><span dir="ltr">{hhmm(x.opens_at)} – {hhmm(x.closes_at)}</span>
+            <div key={x.id} style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}><span>{range(x.opens_at, x.closes_at)}</span>
               <span className={`badge ${x.audience === 'all' ? '' : 'badge-' + x.audience}`}>{t(x.audience === 'all' ? 'aud_all' : x.audience === 'women' ? 'aud_women' : 'aud_men')}</span>
               <button className="btn btn-bad btn-sm" style={{ marginInlineStart: 'auto' }} onClick={() => act(() => deleteHour(x.id), () => hours.reload(true))}>{t('delete')}</button></div>))}</div>) : null)}</div></div>
       <div className="panel"><h2>{t('bl_title')}</h2><p className="muted" style={{ marginBottom: 14 }}>{t('bl_help')}</p>
@@ -161,7 +161,7 @@ function Hours() {
           <div className="field"><label>{t('bl_reason')}</label><input className="input" value={b.reason} onChange={(e) => setB({ ...b, reason: e.target.value })} /></div></div>
           <button className="btn btn-primary btn-sm" style={{ marginTop: 12 }}>+ {t('add')}</button></form>
         <div className="list" style={{ marginTop: 16 }}>{blocked.data?.length === 0 && <p className="muted">{t('bl_none')}</p>}
-          {blocked.data?.map((x) => <div key={x.id} className="trow" style={{ gridAutoFlow: 'column', alignItems: 'center' }}><span>⛔ {fmtDate(x.block_date, lang)} · {x.start_time ? `${hhmm(x.start_time)}–${hhmm(x.end_time)}` : t('bl_whole_day')}{x.reason ? ` · ${x.reason}` : ''}</span><button className="btn btn-bad btn-sm" onClick={() => act(() => deleteBlocked(x.id), () => blocked.reload(true))}>{t('delete')}</button></div>)}</div></div>
+          {blocked.data?.map((x) => <div key={x.id} className="trow" style={{ gridAutoFlow: 'column', alignItems: 'center' }}><span>⛔ {fmtDate(x.block_date, lang)} · {x.start_time ? range(x.start_time, x.end_time) : t('bl_whole_day')}{x.reason ? ` · ${x.reason}` : ''}</span><button className="btn btn-bad btn-sm" onClick={() => act(() => deleteBlocked(x.id), () => blocked.reload(true))}>{t('delete')}</button></div>)}</div></div>
     </>
   );
 }

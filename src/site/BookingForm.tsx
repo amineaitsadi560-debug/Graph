@@ -3,7 +3,7 @@ import { useI18n } from '../i18n';
 import { ApiError, createBooking, getSlots } from '../lib/api';
 import { configured } from '../lib/supabase';
 import type { BookingKind, BookingResult, Plan, Service, Slot } from '../lib/types';
-import { addDays, fmtDate, hhmm, localized, todayAlgiers } from '../lib/utils';
+import { addDays, fmtDate, fmtPrice, hhmm, localized, ltr, range, todayAlgiers } from '../lib/utils';
 import { IconCheck } from '../components/Icons';
 import { newKey, validPhone, type SiteData } from './data';
 
@@ -96,7 +96,7 @@ export function BookingForm({ data, kind, setKind, planId, setPlanId }: {
         <div className="ref" aria-label={t('conf_ref')}>{done.res.ref}</div>
         <div className="summary">
           <span><b>{done.label}</b></span>
-          <span className="muted">{t('conf_when')} : {fmtDate(done.res.date, lang)} · {hhmm(done.res.start)}–{hhmm(done.res.end)}</span>
+          <span className="muted">{t('conf_when')} : {fmtDate(done.res.date, lang)} · {range(done.res.start, done.res.end)}</span>
           <span className="badge badge-pending" style={{ width: 'fit-content' }}>{t('conf_status')}</span>
         </div>
         <p className="muted" style={{ fontSize: '.85rem' }}>{t('conf_note')}</p>
@@ -123,7 +123,7 @@ export function BookingForm({ data, kind, setKind, planId, setPlanId }: {
             <select id="bk-plan" className="input" value={planId} onChange={(e) => setPlanId(e.target.value)} aria-invalid={!!errors.plan}>
               <option value="">{t('choose')}</option>
               {planOptions.map((p) => (
-                <option key={p.id} value={p.id}>{localized(p, 'name', lang)}{p.price_da != null ? ` — ${p.price_da.toLocaleString('fr-FR').replace(/\s/g, ' ')} ${t('da')}` : ''}</option>
+                <option key={p.id} value={p.id}>{localized(p, 'name', lang)}{p.price_da != null ? ` — ${ltr(fmtPrice(p.price_da))} ${t('da')}` : ''}</option>
               ))}
             </select>
             {errors.plan && <span className="field-error">{errors.plan}</span>}
@@ -157,7 +157,7 @@ export function BookingForm({ data, kind, setKind, planId, setPlanId }: {
               {slots.map((s) => (
                 <button key={s.slot_start} type="button" className={`slot ${s.audience === 'women' ? 'women' : ''}`} disabled={s.status !== 'ok'}
                         aria-pressed={start === s.slot_start} onClick={() => setStart(s.slot_start)} data-testid="slot">
-                  <span>{hhmm(s.slot_start)}</span>
+                  <span>{ltr(hhmm(s.slot_start))}</span>
                   <small>{slotLabel(s)}</small>
                   {s.audience !== 'all' && <small>{s.audience === 'women' ? '♀ ' + t('slot_women') : '♂ ' + t('slot_men')}</small>}
                 </button>

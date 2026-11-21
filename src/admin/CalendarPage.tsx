@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useI18n } from '../i18n';
 import { listBlocked, listBookings } from '../lib/api';
 import type { Booking } from '../lib/types';
-import { addDays, endOfMonth, fmtDate, fmtMonth, fmtWeekdayShort, hhmm, startOfMonth, startOfWeek, todayAlgiers } from '../lib/utils';
+import { range, addDays, endOfMonth, fmtDate, fmtMonth, fmtWeekdayShort, hhmm, ltr, startOfMonth, startOfWeek, todayAlgiers } from '../lib/utils';
 import { IconChevron } from '../components/Icons';
 import { useBookingsLive, useLoad } from './hooks';
 import { BookingCard, bookingLabel } from './BookingCard';
@@ -29,19 +29,19 @@ export default function CalendarPage() {
   const title = view === 'month' ? fmtMonth(anchor, lang) : view === 'day' ? fmtDate(anchor, lang, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
     : `${fmtDate(from, lang, { day: 'numeric', month: 'short' })} – ${fmtDate(to, lang, { day: 'numeric', month: 'short', year: 'numeric' })}`;
   const days = Array.from({ length: view === 'week' ? 7 : 42 }, (_, i) => addDays(from, i));
-  const Mini = ({ b }: { b: Booking }) => <div className={`mini s-${b.status}`}><b>{hhmm(b.start_time)} · {b.full_name}</b><span className="muted">{bookingLabel(b, lang)}</span></div>;
+  const Mini = ({ b }: { b: Booking }) => <div className={`mini s-${b.status}`}><b>{ltr(hhmm(b.start_time))} · {b.full_name}</b><span className="muted">{bookingLabel(b, lang)}</span></div>;
   return (
     <>
       <div className="topbar"><h1>{t('a_nav_calendar')}</h1><div className="sp"><div className="seg">{(['day', 'week', 'month'] as View[]).map((v) => <button key={v} aria-pressed={view === v} onClick={() => setView(v)}>{t(v === 'day' ? 'cal_day' : v === 'week' ? 'cal_week' : 'cal_month')}</button>)}</div></div></div>
       <div className="cal-nav">
-        <button className="btn btn-ghost btn-sm" aria-label="previous" onClick={() => move(-1)}><IconChevron size={16} dir={dir === 'rtl' ? 'right' : 'left'} /></button>
+        <button className="btn btn-ghost btn-sm" aria-label={t('aria_prev')} onClick={() => move(-1)}><IconChevron size={16} dir={dir === 'rtl' ? 'right' : 'left'} /></button>
         <button className="btn btn-ghost btn-sm" onClick={() => setAnchor(today)}>{t('cal_today')}</button>
-        <button className="btn btn-ghost btn-sm" aria-label="next" onClick={() => move(1)}><IconChevron size={16} dir={dir === 'rtl' ? 'left' : 'right'} /></button>
+        <button className="btn btn-ghost btn-sm" aria-label={t('aria_next')} onClick={() => move(1)}><IconChevron size={16} dir={dir === 'rtl' ? 'left' : 'right'} /></button>
         <h2>{title}</h2>
       </div>
       {loading && !data ? <div className="spinner" /> : view === 'day' ? (
         <div className="list" data-testid="cal-day">
-          {blocksOn(anchor).map((b) => <div key={b.id} className="blockmini">⛔ {t('cal_blocked')} {b.start_time ? `${hhmm(b.start_time)}–${hhmm(b.end_time)}` : t('bl_whole_day')}{b.reason ? ` · ${b.reason}` : ''}</div>)}
+          {blocksOn(anchor).map((b) => <div key={b.id} className="blockmini">⛔ {t('cal_blocked')} {b.start_time ? range(b.start_time, b.end_time) : t('bl_whole_day')}{b.reason ? ` · ${b.reason}` : ''}</div>)}
           {byDay(anchor).length === 0 ? <p className="muted">{t('cal_empty')}</p> : byDay(anchor).map((b) => <BookingCard key={b.id} b={b} onChanged={() => reload(true)} />)}
         </div>
       ) : view === 'week' ? (

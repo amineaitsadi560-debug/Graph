@@ -54,6 +54,9 @@ const fr = {
   cardio_b1: 'Tapis de course', cardio_b2: 'Vélos', cardio_b3: 'Endurance et perte de poids', cardio_b4: 'Forfaits cardio dédiés',
   photo_ai: 'Image générée par IA',
   fact_rating: 'Note Google', fact_reviews: 'Avis Google', fact_plans: 'Formules',
+  aria_main: 'Navigation principale', aria_prev: 'Précédent', aria_next: 'Suivant', aria_admin: 'Navigation employés',
+  meta_title: 'Salle de Sport Milinium CHERGUI — Bachdjerrah, Alger',
+  demo_banner: 'APERÇU DÉMO · données fictives, rien n’est enregistré · espace employés :',
   photo_hint: 'Illustration',
   // ---- plans
   plans_eyebrow: 'Abonnements', plans_title: 'Tarifs & formules', plans_sub: 'Choisissez votre formule puis réservez votre inscription en ligne.',

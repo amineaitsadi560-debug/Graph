@@ -7,7 +7,7 @@ import { Reveal } from '../components/Reveal';
 import { CountUp, Embers, Marquee, ParallaxFrame, PointerFx, ScrollProgress, SpinBadge, Words, useTilt } from '../components/Motion';
 import { IconCalendar, IconCheck, IconDumbbell, IconHeart, IconMenu, IconNav, IconPhone, IconPin, IconTag, IconX } from '../components/Icons';
 import type { BookingKind, Plan } from '../lib/types';
-import { fmtPrice, fmtWeekdayLong, hhmm, localized, telHref, waHref } from '../lib/utils';
+import { fmtPrice, fmtWeekdayLong, localized, range, telHref, waHref } from '../lib/utils';
 import { BookingForm } from './BookingForm';
 import { isDemo } from '../lib/supabase';
 import { useSiteData, type SiteData } from './data';
@@ -39,7 +39,7 @@ function Header() {
           <span>Milinium<small>CHERGUI GYM</small></span>
         </a>
         <button className="burger" type="button" aria-label={t('menu')} aria-expanded={open} onClick={() => setOpen((o) => !o)}>{open ? <IconX /> : <IconMenu />}</button>
-        <nav className="nav" aria-label="Main">
+        <nav className="nav" aria-label={t('aria_main')}>
           {NAV.map((n) => <a key={n.id} className="link" href={`#${n.id}`} onClick={() => setOpen(false)}>{t(n.k)}</a>)}
           <LangSwitch />
           <a className="btn btn-primary btn-sm" href="#booking" onClick={() => setOpen(false)}>{t('nav_book_cta')}</a>
@@ -52,7 +52,7 @@ function Header() {
 function Hero({ data }: { data: SiteData }) {
   const { t, lang } = useI18n();
   const { settings } = data;
-  const dec = lang === 'en' ? '.' : ',';
+  const dec = lang === 'fr' ? ',' : '.';
   return (
     <section id="top" className="hero">
       <div className="hero-bg">
@@ -61,7 +61,7 @@ function Hero({ data }: { data: SiteData }) {
         <Embers />
       </div>
       <div className="hero-shade" />
-      <SpinBadge text={`MILINIUM CHERGUI • ${t('hero_eyebrow')}`} />
+      <SpinBadge text="MILINIUM CHERGUI • BACHDJERRAH • ALGER" />
       <div className="container hero-in">
         <div className="hero-copy">
           <span className="eyebrow rise" style={{ animationDelay: '100ms' }}>{t('hero_eyebrow')}</span>
@@ -73,9 +73,9 @@ function Hero({ data }: { data: SiteData }) {
           </div>
         </div>
         <dl className="facts rise" style={{ animationDelay: '1100ms' }}>
-          {settings.rating_value != null && <div><dt>{t('fact_rating')}</dt><dd><CountUp to={settings.rating_value} decimals={1} format={(n) => n.toFixed(1).replace('.', dec)} /><small>/5</small></dd></div>}
-          {settings.rating_count != null && <div><dt>{t('fact_reviews')}</dt><dd><CountUp to={settings.rating_count} /></dd></div>}
-          {data.plans.length > 0 && <div><dt>{t('fact_plans')}</dt><dd><CountUp to={data.plans.length} /></dd></div>}
+          {settings.rating_value != null && <div><dt>{t('fact_rating')}</dt><dd><span dir="ltr" className="num"><CountUp to={settings.rating_value} decimals={1} format={(n) => n.toFixed(1).replace('.', dec)} /><small>/5</small></span></dd></div>}
+          {settings.rating_count != null && <div><dt>{t('fact_reviews')}</dt><dd><span dir="ltr" className="num"><CountUp to={settings.rating_count} /></span></dd></div>}
+          {data.plans.length > 0 && <div><dt>{t('fact_plans')}</dt><dd><span dir="ltr" className="num"><CountUp to={data.plans.length} /></span></dd></div>}
         </dl>
       </div>
       <div className="scroll-cue" aria-label={t('scroll')} />
@@ -149,7 +149,7 @@ function PlanCard({ p, onChoose }: { p: Plan; onChoose: (id: string) => void }) 
       <h4>{localized(p, 'name', lang)}</h4>
       <p className="detail">{localized(p, 'detail', lang)}</p>
       {p.price_da != null
-        ? <div className="price"><b><CountUp to={p.price_da} format={fmtPrice} duration={900} /></b><small>{t('da')}</small></div>
+        ? <div className="price"><b dir="ltr" className="num"><CountUp to={p.price_da} format={fmtPrice} duration={900} /></b><small>{t('da')}</small></div>
         : <div className="price tbc">{t('price_tbc')}</div>}
       <button className="btn btn-primary" type="button" onClick={() => onChoose(p.id)}>{t('plan_choose')}</button>
     </article>
@@ -200,7 +200,7 @@ function Hours({ data }: { data: SiteData }) {
             <span>{fmtWeekdayLong(d, lang)}</span>
             <span style={{ textAlign: 'end' }}>
               {w.length === 0 ? <span className="muted">{t('hours_closed')}</span> : w.map((h) => (
-                <span key={h.id} style={{ display: 'block' }}>{hhmm(h.opens_at)}–{hhmm(h.closes_at)}{h.audience !== 'all' && <span className={`badge badge-${h.audience}`} style={{ marginInlineStart: 8 }}>{t(h.audience === 'women' ? 'aud_women' : 'aud_men')}</span>}</span>
+                <span key={h.id} style={{ display: 'block' }}>{range(h.opens_at, h.closes_at)}{h.audience !== 'all' && <span className={`badge badge-${h.audience}`} style={{ marginInlineStart: 8 }}>{t(h.audience === 'women' ? 'aud_women' : 'aud_men')}</span>}</span>
               ))}
             </span>
           </div>

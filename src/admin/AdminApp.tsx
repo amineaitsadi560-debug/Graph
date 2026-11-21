@@ -53,7 +53,7 @@ function Shell() {
           <button className="btn btn-ghost btn-sm" onClick={signOut}><IconLogout size={16} />{t('a_signout')}</button>
         </div>
       </div>
-      <nav className="bottomnav" aria-label="Admin">
+      <nav className="bottomnav" aria-label={t('aria_admin')}>
         {ITEMS.map((i) => <NavLink key={i.to} to={i.to} end={i.end} className={({ isActive }) => (isActive ? 'active' : '')}>{i.icon}<span>{t(i.k)}</span>{count(i.k)}</NavLink>)}
       </nav>
     </div>
