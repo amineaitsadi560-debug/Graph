@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gaming Lounge Manager</title>
+<style>
+  :root{
+    --bg:#0a0f1f; --panel:#121a31; --panel2:#1a2444; --line:#26335d;
+    --text:#e9edf9; --muted:#93a0c4; --accent:#3b82f6;
+    --green:#22c55e; --amber:#f59e0b; --red:#ef4444; --violet:#8b5cf6;
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:radial-gradient(1200px 600px at 10% -10%, #14224a 0%, transparent 60%), var(--bg);
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:16px; line-height:1.4; min-height:100vh;
+  }
+  button,input,select{font:inherit;color:inherit}
+  button{cursor:pointer}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+
+  /* ---------- Top bar ---------- */
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(10,15,31,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .topbar .wrap{display:flex;align-items:center;gap:16px;min-height:64px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px}
+  .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:grid;place-items:center;font-weight:800;font-size:14px}
+  .brand small{display:block;color:var(--muted);font-weight:500;font-size:12px}
+  nav{display:flex;gap:4px;background:var(--panel);padding:4px;border-radius:12px;border:1px solid var(--line)}
+  nav button{background:transparent;border:0;padding:8px 16px;border-radius:9px;color:var(--muted);font-weight:600;min-height:40px}
+  nav button.active{background:var(--accent);color:#fff}
+  .clock{margin-left:auto;text-align:right;font-variant-numeric:tabular-nums}
+  .clock b{font-size:20px;display:block;line-height:1.1}
+  .clock span{color:var(--muted);font-size:12px}
+
+  .notice{background:#2a2410;border-bottom:1px solid #5a4a12;color:#f3d98a;font-size:13px;padding:8px 0}
+
+  main{padding:20px 0 60px}
+  h2{margin:0 0 4px;font-size:22px}
+  .sub{color:var(--muted);margin:0 0 18px;font-size:14px}
+  [hidden]{display:none!important}
+
+  /* ---------- Summary tiles ---------- */
+  .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .tile .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+  .tile .value{font-size:28px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+  .tile .hint{color:var(--muted);font-size:12px;min-height:16px}
+  .tile.g .value{color:var(--green)} .tile.b .value{color:#7db1ff} .tile.a .value{color:var(--amber)}
+
+  /* ---------- Station cards ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;transition:border-color .2s, box-shadow .2s}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--green)}
+  .card.occupied::before{background:var(--accent)}
+  .card.ending::before{background:var(--amber)}
+  .card.overtime::before{background:var(--red)}
+  .card.paused::before{background:var(--violet)}
+  .card.ending{border-color:#7a5a12;box-shadow:0 0 0 1px rgba(245,158,11,.25)}
+  .card.overtime{border-color:#7a2222;box-shadow:0 0 0 1px rgba(239,68,68,.35);animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 4px rgba(239,68,68,.25)}}
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding-left:6px}
+  .card-head h3{margin:0;font-size:18px}
+  .chip{display:inline-block;margin-top:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:#b9c6ea}
+  .pill{font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;white-space:nowrap}
+  .available .pill{background:rgba(34,197,94,.15);color:#6ee79a}
+  .occupied .pill{background:rgba(59,130,246,.18);color:#8fbaff}
+  .ending .pill{background:rgba(245,158,11,.18);color:#fbc65a}
+  .overtime .pill{background:rgba(239,68,68,.2);color:#ff8f8f}
+  .paused .pill{background:rgba(139,92,246,.2);color:#c0a5ff}
+  .timer{font-size:46px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:1px;padding:4px 0 0;line-height:1.1}
+  .available .timer{color:var(--muted);font-size:34px;padding:11px 0 0}
+  .overtime .timer{color:#ff8f8f}
+  .ending .timer{color:#fbc65a}
+  .timer-label{text-align:center;color:var(--muted);font-size:12px;margin-top:2px;min-height:16px}
+  .bar{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .5s linear}
+  .ending .bar i{background:var(--amber)} .overtime .bar i{background:var(--red)} .paused .bar i{background:var(--violet)}
+  .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0}
+  .meta div{background:var(--panel2);border-radius:10px;padding:8px 10px}
+  .meta dt{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+  .meta dd{margin:2px 0 0;font-weight:700;font-variant-numeric:tabular-nums;font-size:15px}
+  .note{color:var(--muted);font-size:13px;min-height:18px;padding-left:2px}
+  .actions{display:flex;gap:8px;margin-top:auto}
+  .btn{flex:1;border:1px solid var(--line);background:var(--panel2);padding:11px 12px;border-radius:11px;font-weight:700;min-height:46px}
+  .btn:hover{border-color:#3a4a82}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{filter:brightness(1.1)}
+  .btn.danger{background:rgba(239,68,68,.14);border-color:#7a2a2a;color:#ff9a9a}
+  .btn.ghost{background:transparent}
+  .btn.small{flex:none;min-height:38px;padding:8px 14px;font-size:14px}
+
+  /* ---------- History table ---------- */
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .toolbar .grow{flex:1}
+  select,input[type=text],input[type=number]{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-height:42px}
+  input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .tablebox{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:auto}
+  table{width:100%;border-collapse:collapse;min-width:640px}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);font-size:14px;white-space:nowrap}
+  th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px;background:var(--panel2);position:sticky;top:0}
+  tr:last-child td{border-bottom:0}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tfoot td{font-weight:700;background:var(--panel2)}
+  .empty{padding:40px 16px;text-align:center;color:var(--muted)}
+  .tag{font-size:11px;padding:2px 7px;border-radius:99px;background:rgba(139,92,246,.2);color:#c0a5ff;margin-left:6px;font-weight:700}
+
+  /* ---------- Settings ---------- */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+  .panel h3{margin:0 0 4px;font-size:17px}
+  .panel p{margin:0 0 14px;color:var(--muted);font-size:14px}
+  .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:600}
+  label.f input,label.f select{color:var(--text)}
+  .srow{display:grid;grid-template-columns:1fr 120px auto;gap:10px;margin-bottom:10px;align-items:center}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .check{display:flex;gap:10px;align-items:center;font-size:15px}
+  .check input{width:20px;height:20px}
+
+  /* ---------- Dialog & toasts ---------- */
+  dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:0;width:min(440px,calc(100vw - 24px));box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  dialog::backdrop{background:rgba(3,6,15,.72)}
+  .dlg-head{padding:18px 20px 0}
+  .dlg-head h3{margin:0;font-size:20px}
+  .dlg-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
+  .dlg-body{padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+  .dlg-foot{padding:0 20px 20px;display:flex;gap:10px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chips button{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-weight:700;min-height:44px}
+  .chips button.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+  .est{background:var(--panel2);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+  .est b{font-size:22px;font-variant-numeric:tabular-nums}
+  .est span{color:var(--muted);font-size:13px}
+  .toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:50;max-width:calc(100vw - 32px)}
+  .toast{background:#1d2850;border:1px solid #34478c;padding:12px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.4);font-weight:600;animation:in .2s ease-out}
+  .toast.warn{background:#3a2d0b;border-color:#8a6a14}
+  .toast.bad{background:#3a1414;border-color:#8a2a2a}
+  @keyframes in{from{transform:translateY(10px);opacity:0}}
+
+  /* ---------- Phones ---------- */
+  @media (max-width:820px){
+    .summary{grid-template-columns:repeat(2,1fr)}
+    .summary .tile:last-child{grid-column:span 2}
+    .clock{display:none}
+    nav{width:100%} nav button{flex:1;padding:8px 6px}
+    .brand small{display:none}
+    .srow{grid-template-columns:1fr 100px auto}
+  }
+  @media (max-width:420px){
+    .timer{font-size:40px}
+    .grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo">GL</div>
+      <div>Gaming Lounge Manager<small>Reception dashboard</small></div>
+    </div>
+    <nav id="nav">
+      <button data-action="nav" data-view="dashboard" class="active">Dashboard</button>
+      <button data-action="nav" data-view="history">History</button>
+      <button data-action="nav" data-view="settings">Settings</button>
+    </nav>
+    <div class="clock"><b id="clock">--:--:--</b><span id="date"></span></div>
+  </div>
+</header>
+
+<div class="notice"><div class="wrap">
+  <b>Prototype.</b> Everything you do here is saved only inside this browser on this device. The shared database (so the owner’s phone sees the same data) is not built yet.
+</div></div>
+
+<main><div class="wrap">
+
+  <!-- ===== Dashboard ===== -->
+  <section id="view-dashboard">
+    <h2>Stations</h2>
+    <p class="sub">Each card is one TV + PlayStation. Employees start, pause, extend and stop sessions by hand; the app only keeps time and price. It never talks to the consoles.</p>
+    <div class="summary" id="summary"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- ===== History ===== -->
+  <section id="view-history" hidden>
+    <h2>Session history</h2>
+    <p class="sub">Finished sessions and the revenue they earned.</p>
+    <div class="toolbar">
+      <select id="histRange">
+        <option value="today">Today</option>
+        <option value="7">Last 7 days</option>
+        <option value="all">All time</option>
+      </select>
+      <span class="grow"></span>
+      <button class="btn small" data-action="export">Download CSV (Excel)</button>
+    </div>
+    <div class="tablebox" id="histBox"></div>
+  </section>
+
+  <!-- ===== Settings ===== -->
+  <section id="view-settings" hidden>
+    <h2>Settings</h2>
+    <p class="sub">Changes save automatically. New prices apply to sessions started afterwards; sessions already running keep the price they started with.</p>
+    <div id="settingsBox"></div>
+  </section>
+
+</div></main>
+
+<dialog id="dlg"></dialog>
+<div class="toasts" id="toasts"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =========================================================
+     1. DATA  (saved in this browser's localStorage)
+     ========================================================= */
+  var STORAGE_KEY = 'gamingLoungeManager.prototype.v1';
+
+  function defaultState() {
+    var stations = [];
+    for (var i = 1; i <= 7; i++) {
+      stations.push({ id: 's' + i, name: 'Station ' + i, type: i <= 4 ? 'PS5' : 'PS4' });
+    }
+    return {
+      settings: {
+        currency: '$',
+        rates: { PS4: 5, PS5: 8 },     // price per hour (sample values — change in Settings)
+        endingSoonMin: 5,              // "ending soon" when this many minutes are left
+        minChargeMin: 15,              // minimum billed minutes for any session
+        sound: true
+      },
+      stations: stations,
+      sessions: []                     // every session ever started
+    };
+  }
+
+  var state = load();
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var p = JSON.parse(raw);
+        if (p && p.settings && p.stations && p.sessions) return p;
+      }
+    } catch (e) {}
+    return defaultState();
+  }
+  var warnedSave = false;
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch (e) {
+      if (!warnedSave) { warnedSave = true; toast('This browser is not allowing saving. Data will be lost on refresh.', 'bad'); }
+    }
+  }
+
+  /* =========================================================
+     2. TIME & PRICE RULES
+     A session stores real timestamps (milliseconds):
+       startedAt     when it started
+       plannedMs     how long was booked (grows when time is extended)
+       pausedAt      when the current pause began (or null)
+       pausedTotalMs total time spent paused before
+       endedAt       when it was stopped (or null while running)
+     Everything on screen is calculated from these, so a refresh
+     never loses or changes the time.
+     ========================================================= */
+  function activeSession(stationId) {
+    for (var i = 0; i < state.sessions.length; i++) {
+      var s = state.sessions[i];
+      if (s.stationId === stationId && !s.endedAt) return s;
+    }
+    return null;
+  }
+  function playedMs(s, now) {
+    var end = s.endedAt || s.pausedAt || now;
+    return Math.max(0, end - s.startedAt - s.pausedTotalMs);
+  }
+  function billableMinutes(s, now) {
+    var mins = Math.ceil(playedMs(s, now) / 60000);
+    return Math.max(state.settings.minChargeMin, mins);
+  }
+  function priceOf(minutes, ratePerHour) {
+    return Math.round(minutes / 60 * ratePerHour * 100) / 100;
+  }
+  function sessionPriceNow(s, now) { return priceOf(billableMinutes(s, now), s.rate); }
+
+  function statusOf(station, now) {
+    var s = activeSession(station.id);
+    if (!s) return 'available';
+    if (s.pausedAt) return 'paused';
+    var remaining = s.plannedMs - playedMs(s, now);
+    if (remaining <= 0) return 'overtime';
+    if (remaining <= state.settings.endingSoonMin * 60000) return 'ending';
+    return 'occupied';
+  }
+  var STATUS_LABEL = { available: 'Available', occupied: 'Occupied', ending: 'Ending soon', overtime: 'Time’s up', paused: 'Paused' };
+
+  /* =========================================================
+     3. SMALL HELPERS
+     ========================================================= */
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function clockText(ms) {
+    var t = Math.floor(Math.abs(ms) / 1000), h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60;
+    return (h > 0 ? h + ':' + pad(m) : pad(m)) + ':' + pad(s);
+  }
+  function money(n) { return state.settings.currency + (Math.round(n * 100) / 100).toFixed(2); }
+  function timeOfDay(ms) { return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+  function dateTime(ms) { return new Date(ms).toLocaleDateString([], { day: '2-digit', month: 'short' }) + ' ' + timeOfDay(ms); }
+  function mins(ms) { return Math.round(ms / 60000); }
+  function uid() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function sameDay(a, b) { return new Date(a).toDateString() === new Date(b).toDateString(); }
+  function stationById(id) { return state.stations.filter(function (s) { return s.id === id; })[0]; }
+
+  function toast(msg, kind) {
+    var el = document.createElement('div');
+    el.className = 'toast' + (kind ? ' ' + kind : '');
+    el.textContent = msg;
+    $('#toasts').appendChild(el);
+    setTimeout(function () { el.remove(); }, 6000);
+  }
+
+  var audioCtx = null;
+  function beep() {
+    if (!state.settings.sound) return;
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      [0, 0.25, 0.5].forEach(function (d) {
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.frequency.value = 880; o.connect(g); g.connect(audioCtx.destination);
+        g.gain.setValueAtTime(0.15, audioCtx.currentTime + d);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d + 0.2);
+        o.start(audioCtx.currentTime + d); o.stop(audioCtx.currentTime + d + 0.22);
+      });
+    } catch (e) { /* browsers may block sound until the page has been clicked once */ }
+  }
+
+  /* =========================================================
+     4. DASHBOARD
+     ========================================================= */
+  function describe(station, now) {
+    var s = activeSession(station.id), status = statusOf(station, now);
+    var d = { status: status, label: STATUS_LABEL[status], timer: 'Ready', sub: '', pct: 0,
+              started: '—', ends: '—', price: money(0), note: '' };
+    if (!s) {
+      d.price = money(state.settings.rates[station.type] || 0) + '/h';
+      d.priceLabel = 'Rate';
+      d.note = 'Free to use';
+      return d;
+    }
+    var played = playedMs(s, now), remaining = s.plannedMs - played;
+    d.priceLabel = 'Price now';
+    d.started = timeOfDay(s.startedAt);
+    d.price = money(sessionPriceNow(s, now));
+    d.pct = Math.min(100, played / s.plannedMs * 100);
+    if (status === 'overtime') { d.timer = '+' + clockText(-remaining); d.sub = 'Over booked time'; d.pct = 100; }
+    else { d.timer = clockText(remaining); d.sub = status === 'paused' ? 'Paused — clock is stopped' : 'Time remaining'; }
+    d.ends = status === 'paused' ? '—' : timeOfDay(now + Math.max(0, remaining));
+    if (status === 'overtime') d.ends = 'Now';
+    d.note = mins(s.plannedMs) + ' min booked' + (s.note ? ' · ' + s.note : '');
+    return d;
+  }
+
+  function actionsHTML(station) {
+    var s = activeSession(station.id), id = esc(station.id);
+    if (!s) return '<button class="btn primary" data-action="start-open" data-id="' + id + '">▶ Start session</button>';
+    return (s.pausedAt
+        ? '<button class="btn primary" data-action="resume" data-id="' + id + '">▶ Resume</button>'
+        : '<button class="btn" data-action="pause" data-id="' + id + '">❚❚ Pause</button>')
+      + '<button class="btn" data-action="extend-open" data-id="' + id + '">＋ Time</button>'
+      + '<button class="btn danger" data-action="stop-open" data-id="' + id + '">■ Stop</button>';
+  }
+
+  function cardHTML(station, now) {
+    var d = describe(station, now);
+    return '<article class="card ' + d.status + '" data-station="' + esc(station.id) + '">'
+      + '<div class="card-head"><div><h3>' + esc(station.name) + '</h3><span class="chip">' + esc(station.type) + '</span></div>'
+      + '<span class="pill" data-f="pill">' + d.label + '</span></div>'
+      + '<div><div class="timer" data-f="timer">' + d.timer + '</div><div class="timer-label" data-f="sub">' + d.sub + '</div></div>'
+      + '<div class="bar"><i data-f="bar" style="width:' + d.pct + '%"></i></div>'
+      + '<dl class="meta">'
+      + '<div><dt>Started</dt><dd data-f="started">' + d.started + '</dd></div>'
+      + '<div><dt>Ends at</dt><dd data-f="ends">' + d.ends + '</dd></div>'
+      + '<div><dt data-f="priceLabel">' + d.priceLabel + '</dt><dd data-f="price">' + d.price + '</dd></div>'
+      + '</dl>'
+      + '<div class="note" data-f="note">' + esc(d.note) + '</div>'
+      + '<div class="actions">' + actionsHTML(station) + '</div>'
+      + '</article>';
+  }
+
+  function renderDashboard() {
+    var now = Date.now();
+    $('#grid').innerHTML = state.stations.map(function (st) { return cardHTML(st, now); }).join('')
+      || '<div class="empty">No stations yet. Add some in Settings.</div>';
+    updateSummary(now);
+  }
+
+  // Cheap once-per-second update: only touches text/colours, never the buttons.
+  function updateCards(now) {
+    state.stations.forEach(function (st) {
+      var card = $('[data-station="' + st.id + '"]');
+      if (!card) return;
+      var d = describe(st, now);
+      card.className = 'card ' + d.status;
+      var set = function (f, v) { var el = $('[data-f="' + f + '"]', card); if (el && el.textContent !== String(v)) el.textContent = v; };
+      set('pill', d.label); set('timer', d.timer); set('sub', d.sub); set('started', d.started);
+      set('ends', d.ends); set('price', d.price); set('priceLabel', d.priceLabel); set('note', d.note);
+      $('[data-f="bar"]', card).style.width = d.pct + '%';
+    });
+  }
+
+  function updateSummary(now) {
+    var avail = 0, busy = 0, ending = 0;
+    state.stations.forEach(function (st) {
+      var s = statusOf(st, now);
+      if (s === 'available') avail++; else busy++;
+      if (s === 'ending' || s === 'overtime') ending++;
+    });
+    var done = state.sessions.filter(function (s) { return s.endedAt && sameDay(s.endedAt, now); });
+    var rev = done.reduce(function (a, s) { return a + s.price; }, 0);
+    var running = state.sessions.filter(function (s) { return !s.endedAt; }).length;
+    $('#summary').innerHTML =
+      tile('g', 'Available', avail, 'of ' + state.stations.length + ' stations') +
+      tile('b', 'Occupied', busy, running ? 'incl. paused' : '') +
+      tile('a', 'Ending soon', ending, 'or past time') +
+      tile('', 'Revenue today', money(rev), 'finished sessions only') +
+      tile('', 'Sessions today', done.length, running ? running + ' still running' : 'finished');
+  }
+  function tile(cls, label, value, hint) {
+    return '<div class="tile ' + cls + '"><div class="label">' + label + '</div><div class="value">' + value + '</div><div class="hint">' + hint + '</div></div>';
+  }
+
+  /* =========================================================
+     5. SESSION ACTIONS
+     ========================================================= */
+  function startSession(stationId, minutes, note) {
+    var st = stationById(stationId);
+    if (!st || activeSession(stationId)) return false;
+    state.sessions.push({
+      id: uid(), stationId: stationId, stationName: st.name, stationType: st.type,
+      startedAt: Date.now(), plannedMs: minutes * 60000,
+      pausedAt: null, pausedTotalMs: 0, endedAt: null,
+      rate: state.settings.rates[st.type] || 0, note: note || '',
+      playedMin: null, price: null
+    });
+    save(); return true;
+  }
+  function pauseSession(stationId) {
+    var s = activeSession(stationId);
+    if (s && !s.pausedAt) { s.pausedAt = Date.now(); save(); }
+  }
+  function resumeSession(stationId) {
+    var s = activeSession(stationId);
+    if (s && s.pausedAt) { s.pausedTotalMs += Date.now() - s.pausedAt; s.pausedAt = null; save(); }
+  }
+  function extendSession(stationId, minutes) {
+    var s = activeSession(stationId);
+    if (s) { s.plannedMs += minutes * 60000; save(); }
+  }
+  function stopSession(stationId) {
+    var s = activeSession(stationId), now = Date.now();
+    if (!s) return null;
+    if (s.pausedAt) { s.pausedTotalMs += now - s.pausedAt; s.pausedAt = null; }
+    s.endedAt = now;
+    s.playedMin = billableMinutes(s, now);
+    s.price = priceOf(s.playedMin, s.rate);
+    save(); return s;
+  }
+
+  /* =========================================================
+     6. POP-UP WINDOWS
+     ========================================================= */
+  var dlg = $('#dlg');
+  function openDialog(title, subtitle, body, foot) {
+    dlg.innerHTML = '<div class="dlg-head"><h3>' + title + '</h3>' + (subtitle ? '<p>' + subtitle + '</p>' : '') + '</div>'
+      + '<div class="dlg-body">' + body + '</div><div class="dlg-foot">' + foot + '</div>';
+    if (!dlg.open) dlg.showModal();
+  }
+  function closeDialog() { if (dlg.open) dlg.close(); }
+
+  function chipsHTML(list, prefix) {
+    return '<div class="chips">' + list.map(function (m) {
+      return '<button type="button" data-action="chip" data-min="' + m + '">' + (prefix || '') + m + ' min</button>';
+    }).join('') + '</div>';
+  }
+  function minutesFromInput() {
+    var v = parseInt($('#minutes').value, 10);
+    return (v >= 1 && v <= 720) ? v : 0;
+  }
+  function refreshEstimate(stationId) {
+    var st = stationById(stationId), m = minutesFromInput(), el = $('#estimate');
+    if (!el) return;
+    var rate = state.settings.rates[st.type] || 0;
+    el.textContent = m ? money(priceOf(Math.max(m, state.settings.minChargeMin), rate)) : '—';
+    $all('.chips button', dlg).forEach(function (b) { b.classList.toggle('sel', parseInt(b.dataset.min, 10) === m); });
+  }
+
+  function openStart(id) {
+    var st = stationById(id); if (!st || activeSession(id)) return;
+    var rate = state.settings.rates[st.type] || 0;
+    openDialog('Start session', esc(st.name) + ' · ' + esc(st.type) + ' · ' + money(rate) + ' per hour',
+      '<div><label class="f">How long is the customer paying for?</label>' + chipsHTML([30, 60, 90, 120]) + '</div>'
+      + '<label class="f">Or type your own number of minutes<input id="minutes" type="number" min="1" max="720" inputmode="numeric" value="60"></label>'
+      + '<label class="f">Customer name or note (optional)<input id="note" type="text" maxlength="40" placeholder="e.g. Sam, birthday group"></label>'
+      + '<div class="est"><span>Price if played in full</span><b id="estimate"></b></div>',
+      '<button class="btn ghost" data-action="close">Cancel</button><button class="btn primary" data-action="start-confirm" data-id="' + esc(id) + '">Start timer</button>');
+    dlg.dataset.station = id; refreshEstimate(id);
+  }
+  function openExtend(id) {
+    var st = stationById(id), s = activeSession(id); if (!st || !s) return;
+    openDialog('Add time', esc(st.name) + ' · currently booked ' + mins(s.plannedMs) + ' min',
+      '<div><label class="f">Add how much?</label>' + chipsHTML([15, 30, 60], '+') + '</div>'
+      + '<label class="f">Or type minutes to add<input id="minutes" type="number" min="1" max="720" inputmode="numeric" value="30"></label>',
+      '<button class="btn ghost" data-action="close">Cancel</button><button class="btn primary" data-action="extend-confirm" data-id="' + esc(id) + '">Add time</button>');
+    dlg.dataset.station = id;
+    $all('.chips button', dlg).forEach(function (b) { b.classList.toggle('sel', b.dataset.min === '30'); });
+  }
+  function openStop(id) {
+    var st = stationById(id), s = activeSession(id); if (!st || !s) return;
+    var now = Date.now(), m = billableMinutes(s, now), played = mins(playedMs(s, now));
+    openDialog('Stop session?', esc(st.name) + ' · ' + esc(s.note || 'no note'),
+      '<div class="est"><span>Time played<br>(paused time not counted)</span><b>' + played + ' min</b></div>'
+      + (m > played ? '<div class="note">Minimum charge of ' + state.settings.minChargeMin + ' min applies.</div>' : '')
+      + '<div class="est"><span>Amount to collect</span><b>' + money(priceOf(m, s.rate)) + '</b></div>',
+      '<button class="btn ghost" data-action="close">Keep running</button><button class="btn danger" data-action="stop-confirm" data-id="' + esc(id) + '">Stop &amp; record</button>');
+  }
+
+  /* =========================================================
+     7. HISTORY
+     ========================================================= */
+  function historyRows() {
+    var range = $('#histRange').value, now = Date.now();
+    return state.sessions.filter(function (s) {
+      if (!s.endedAt) return false;
+      if (range === 'today') return sameDay(s.endedAt, now);
+      if (range === '7') return s.endedAt >= now - 7 * 86400000;
+      return true;
+    }).sort(function (a, b) { return b.endedAt - a.endedAt; });
+  }
+  function renderHistory() {
+    var rows = historyRows(), box = $('#histBox');
+    if (!rows.length) {
+      box.innerHTML = '<div class="empty">No finished sessions in this period yet.<br>Start and stop a session on the Dashboard and it will appear here.</div>';
+      return;
+    }
+    var total = rows.reduce(function (a, s) { return a + s.price; }, 0);
+    box.innerHTML = '<table><thead><tr><th>Station</th><th>Note</th><th>Started</th><th>Ended</th><th class="num">Billed</th><th class="num">Price</th></tr></thead><tbody>'
+      + rows.map(function (s) {
+        return '<tr><td>' + esc(s.stationName) + ' <span class="chip">' + esc(s.stationType) + '</span>' + (s.demo ? '<span class="tag">demo</span>' : '') + '</td>'
+          + '<td>' + esc(s.note || '—') + '</td><td>' + dateTime(s.startedAt) + '</td><td>' + dateTime(s.endedAt) + '</td>'
+          + '<td class="num">' + s.playedMin + ' min</td><td class="num">' + money(s.price) + '</td></tr>';
+      }).join('')
+      + '</tbody><tfoot><tr><td colspan="4">' + rows.length + ' session' + (rows.length === 1 ? '' : 's') + '</td><td></td><td class="num">' + money(total) + '</td></tr></tfoot></table>';
+  }
+  function exportCSV() {
+    var rows = historyRows();
+    if (!rows.length) { toast('Nothing to download for this period.', 'warn'); return; }
+    var q = function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; };
+    var lines = [['Station', 'Console', 'Note', 'Started', 'Ended', 'Billed minutes', 'Price'].map(q).join(',')];
+    rows.forEach(function (s) {
+      lines.push([s.stationName, s.stationType, s.note, new Date(s.startedAt).toLocaleString(), new Date(s.endedAt).toLocaleString(), s.playedMin, s.price.toFixed(2)].map(q).join(','));
+    });
+    var blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'gaming-lounge-history.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  /* =========================================================
+     8. SETTINGS
+     ========================================================= */
+  function renderSettings() {
+    var s = state.settings;
+    $('#settingsBox').innerHTML =
+      '<div class="panel"><h3>Prices</h3><p>Sample prices — replace them with your own. Price is charged for time actually played.</p>'
+      + '<div class="fields">'
+      + '<label class="f">Currency symbol<input type="text" maxlength="6" data-field="currency" value="' + esc(s.currency) + '"></label>'
+      + '<label class="f">PS4 price per hour<input type="number" min="0" step="0.5" data-field="rate-PS4" value="' + s.rates.PS4 + '"></label>'
+      + '<label class="f">PS5 price per hour<input type="number" min="0" step="0.5" data-field="rate-PS5" value="' + s.rates.PS5 + '"></label>'
+      + '<label class="f">Minimum charge (minutes)<input type="number" min="0" step="5" data-field="minChargeMin" value="' + s.minChargeMin + '"></label>'
+      + '</div></div>'
+      + '<div class="panel"><h3>Alerts</h3><p>A station turns amber when this little time is left, and red when time is up.</p>'
+      + '<div class="fields"><label class="f">“Ending soon” warning (minutes left)<input type="number" min="1" max="60" data-field="endingSoonMin" value="' + s.endingSoonMin + '"></label></div>'
+      + '<div style="margin-top:14px"><label class="check"><input type="checkbox" data-field="sound"' + (s.sound ? ' checked' : '') + '> Play a beep when time is up (this computer/phone must have the page open)</label></div></div>'
+      + '<div class="panel"><h3>Stations (' + state.stations.length + ')</h3><p>Between 5 and 9 is typical. A station with a running session cannot be changed or removed.</p>'
+      + state.stations.map(function (st) {
+          var busy = !!activeSession(st.id);
+          return '<div class="srow"><input type="text" maxlength="24" data-station-field="name" data-id="' + esc(st.id) + '" value="' + esc(st.name) + '"' + (busy ? ' disabled' : '') + '>'
+            + '<select data-station-field="type" data-id="' + esc(st.id) + '"' + (busy ? ' disabled' : '') + '><option' + (st.type === 'PS4' ? ' selected' : '') + '>PS4</option><option' + (st.type === 'PS5' ? ' selected' : '') + '>PS5</option></select>'
+            + '<button class="btn small danger" data-action="remove-station" data-id="' + esc(st.id) + '"' + (busy ? ' disabled' : '') + '>Remove</button></div>';
+        }).join('')
+      + '<div class="btnrow"><button class="btn small" data-action="add-station"' + (state.stations.length >= 9 ? ' disabled' : '') + '>＋ Add station</button></div></div>'
+      + '<div class="panel"><h3>Try it out / start fresh</h3><p>Demo sessions are clearly marked “demo” so you can see how the revenue and history screens look. They are not real sales.</p>'
+      + '<div class="btnrow"><button class="btn small" data-action="demo">Add demo history</button>'
+      + '<button class="btn small danger" data-action="clear-history">Delete all history</button>'
+      + '<button class="btn small danger" data-action="reset-all">Reset everything</button></div></div>';
+  }
+
+  function onSettingChange(e) {
+    var t = e.target, f = t.dataset.field, sf = t.dataset.stationField;
+    if (f) {
+      var s = state.settings;
+      if (f === 'currency') s.currency = t.value.trim() || '$';
+      else if (f === 'sound') s.sound = t.checked;
+      else {
+        var v = parseFloat(t.value);
+        if (isNaN(v) || v < 0) { toast('Please enter a number that is zero or higher.', 'warn'); renderSettings(); return; }
+        if (f === 'rate-PS4') s.rates.PS4 = v;
+        else if (f === 'rate-PS5') s.rates.PS5 = v;
+        else if (f === 'minChargeMin') s.minChargeMin = Math.round(v);
+        else if (f === 'endingSoonMin') s.endingSoonMin = Math.max(1, Math.round(v));
+      }
+    } else if (sf) {
+      var st = stationById(t.dataset.id);
+      if (!st || activeSession(st.id)) return;
+      if (sf === 'name') st.name = t.value.trim() || st.name;
+      if (sf === 'type') st.type = t.value;
+    } else return;
+    save(); renderDashboard();
+  }
+
+  function addDemoHistory() {
+    var now = Date.now(), lens = [30, 60, 45, 90, 60, 120, 30, 60, 75, 60];
+    var names = ['', 'Walk-in', 'Birthday group', '', 'Sam', '', 'Tournament', '', 'Walk-in', ''];
+    for (var i = 0; i < lens.length; i++) {
+      var st = state.stations[i % state.stations.length]; if (!st) break;
+      var end = now - (i * 23 + 12) * 60000, rate = state.settings.rates[st.type] || 0;
+      var m = Math.max(state.settings.minChargeMin, lens[i]);
+      state.sessions.push({ id: uid(), stationId: st.id, stationName: st.name, stationType: st.type,
+        startedAt: end - lens[i] * 60000, plannedMs: lens[i] * 60000, pausedAt: null, pausedTotalMs: 0, endedAt: end,
+        rate: rate, note: names[i], playedMin: m, price: priceOf(m, rate), demo: true });
+    }
+    save(); renderDashboard(); toast('Demo history added (marked “demo”).');
+  }
+
+  /* =========================================================
+     9. CLICKS
+     ========================================================= */
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-action]'); if (!b || b.disabled) return;
+    var a = b.dataset.action, id = b.dataset.id;
+    switch (a) {
+      case 'nav': showView(b.dataset.view); break;
+      case 'close': closeDialog(); break;
+      case 'start-open': openStart(id); break;
+      case 'extend-open': openExtend(id); break;
+      case 'stop-open': openStop(id); break;
+      case 'pause': pauseSession(id); renderDashboard(); break;
+      case 'resume': resumeSession(id); renderDashboard(); break;
+      case 'chip':
+        $('#minutes').value = b.dataset.min;
+        if (dlg.dataset.station) refreshEstimate(dlg.dataset.station);
+        $all('.chips button', dlg).forEach(function (c) { c.classList.toggle('sel', c === b); });
+        break;
+      case 'start-confirm':
+        var m = minutesFromInput();
+        if (!m) { toast('Enter a number of minutes between 1 and 720.', 'warn'); return; }
+        if (startSession(id, m, $('#note').value.trim())) { closeDialog(); renderDashboard(); toast(stationById(id).name + ' started for ' + m + ' min.'); }
+        break;
+      case 'extend-confirm':
+        var x = minutesFromInput();
+        if (!x) { toast('Enter a number of minutes between 1 and 720.', 'warn'); return; }
+        extendSession(id, x); closeDialog(); renderDashboard(); toast(x + ' minutes added.');
+        break;
+      case 'stop-confirm':
+        var done = stopSession(id); closeDialog(); renderDashboard();
+        if (done) toast(done.stationName + ' stopped. Collect ' + money(done.price) + '.');
+        break;
+      case 'export': exportCSV(); break;
+      case 'add-station':
+        if (state.stations.length < 9) {
+          var n = 1; while (state.stations.some(function (s) { return s.name === 'Station ' + n; })) n++;
+          state.stations.push({ id: uid(), name: 'Station ' + n, type: 'PS5' });
+          save(); renderSettings(); renderDashboard();
+        } break;
+      case 'remove-station':
+        var rs = stationById(id);
+        if (rs && !activeSession(id) && window.confirm('Remove ' + rs.name + '? Its past sessions stay in History.')) {
+          state.stations = state.stations.filter(function (s) { return s.id !== id; });
+          save(); renderSettings(); renderDashboard();
+        } break;
+      case 'demo': addDemoHistory(); break;
+      case 'clear-history':
+        if (window.confirm('Delete ALL finished sessions and revenue history? Running sessions stay.')) {
+          state.sessions = state.sessions.filter(function (s) { return !s.endedAt; });
+          save(); renderDashboard(); toast('History deleted.');
+        } break;
+      case 'reset-all':
+        if (window.confirm('Reset everything (stations, prices, running sessions and history)? This cannot be undone.')) {
+          state = defaultState(); save(); renderSettings(); renderDashboard(); toast('Everything was reset.');
+        } break;
+    }
+  });
+  dlg.addEventListener('input', function (e) {
+    if (e.target.id === 'minutes' && dlg.dataset.station) refreshEstimate(dlg.dataset.station);
+  });
+  dlg.addEventListener('close', function () { delete dlg.dataset.station; });
+  $('#settingsBox').addEventListener('change', onSettingChange);
+  $('#histRange').addEventListener('change', renderHistory);
+
+  var currentView = 'dashboard';
+  function showView(v) {
+    currentView = v;
+    ['dashboard', 'history', 'settings'].forEach(function (n) { $('#view-' + n).hidden = n !== v; });
+    $all('#nav button').forEach(function (b) { b.classList.toggle('active', b.dataset.view === v); });
+    if (v === 'dashboard') renderDashboard();
+    if (v === 'history') renderHistory();
+    if (v === 'settings') renderSettings();
+  }
+
+  // If the app is open in two tabs of the same browser, keep them in step.
+  window.addEventListener('storage', function (e) {
+    if (e.key !== STORAGE_KEY) return;
+    state = load(); showView(currentView);
+  });
+
+  /* =========================================================
+     10. THE CLOCK — runs every second
+     ========================================================= */
+  var lastStatus = null;
+  function tick() {
+    var now = Date.now(), d = new Date(now);
+    $('#clock').textContent = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    $('#date').textContent = d.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' });
+
+    // Notify only when a station *changes* to ending soon / time's up.
+    var cur = {};
+    state.stations.forEach(function (st) { cur[st.id] = statusOf(st, now); });
+    if (lastStatus) {
+      state.stations.forEach(function (st) {
+        if (cur[st.id] !== lastStatus[st.id]) {
+          if (cur[st.id] === 'ending') toast(st.name + ' is ending soon.', 'warn');
+          if (cur[st.id] === 'overtime') { toast(st.name + ': time is up!', 'bad'); beep(); }
+        }
+      });
+    }
+    lastStatus = cur;
+
+    if (currentView === 'dashboard') updateCards(now);
+    updateSummary(now);
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) tick(); });
+
+  showView('dashboard');
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
